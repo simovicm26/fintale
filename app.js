@@ -68,20 +68,65 @@
   function feedbackHtml() { return feedback ? `<div class="feedback ${error ? 'error' : ''}" role="status">${feedback}</div>` : ''; }
   function confetti() { return '<div class="burst" aria-hidden="true">' + Array.from({length:18}, (_,i) => `<i style="--x:${(i*37)%100}%;--c:${['#c7b2de','#e3b78a','#87a971'][i%3]};--d:${(i%5)*.12}s"></i>`).join('') + '</div>'; }
   function signupHtml() { if (!signup) return ''; if (previewSubmitted) return '<div class="feedback" role="status">That’s the signup preview. No email was stored or sent. We’ll connect a real waitlist before launch.</div>'; return '<form class="form" id="waitlist"><label for="email">Your email</label><input type="email" id="email" autocomplete="email" placeholder="you@example.com" required><label class="consent"><input type="checkbox" required> I’d like an email when the full Fintale product launches.</label><button class="primary" type="submit">Preview signup <span aria-hidden="true">→</span></button><p class="notice">Demo only. This form does not store or send your email. A live signup and privacy notice will be added before launch.</p></form>'; }
+  // Keep unchanged DOM nodes, images, focus and animations in place.
+  function patchNode(current, next) {
+    if (current.isEqualNode(next)) return;
+    const identity = node => node.nodeType === 1 ? (node.getAttribute('id') || node.getAttribute('data-card') || node.getAttribute('data-place') || node.getAttribute('data-action') || '') : '';
+    if (current.nodeType !== next.nodeType || current.nodeName !== next.nodeName || identity(current) !== identity(next)) {
+      current.replaceWith(next.cloneNode(true));
+      return;
+    }
+    if (current.nodeType !== 1 && current.nodeType !== 11) {
+      current.nodeValue = next.nodeValue;
+      return;
+    }
+    if (current.nodeType === 1) {
+      for (const attribute of Array.from(current.attributes)) if (!next.hasAttribute(attribute.name)) current.removeAttribute(attribute.name);
+      for (const attribute of Array.from(next.attributes)) if (current.getAttribute(attribute.name) !== attribute.value) current.setAttribute(attribute.name, attribute.value);
+    }
+    patchChildren(current, next);
+  }
+  function patchChildren(current, next) {
+    const children = Array.from(next.childNodes);
+    for (let i = 0; i < children.length; i++) {
+      if (current.childNodes[i]) patchNode(current.childNodes[i], children[i]);
+      else current.appendChild(children[i].cloneNode(true));
+    }
+    while (current.childNodes.length > children.length) current.lastChild.remove();
+  }
+  function patchMarkup(container, markup) {
+    const template = document.createElement('template');
+    template.innerHTML = markup;
+    patchChildren(container, template.content);
+  }
   function render() {
     const v = view();
-    root.innerHTML = `<header class="topbar"><div class="brand"><span class="brand-mark" aria-hidden="true">f</span>fintale<span style="color:#7b936c">.</span></div><div class="top-actions"><span class="top-note">A little learning. A lot of possibility.</span><span class="xp" aria-label="${xp()} experience points">✦ &nbsp; ${xp()} XP</span><button class="icon-button" data-action="restart" aria-label="Restart lesson">↺</button></div></header><main class="shell"><div class="breadcrumb"><span>ACCOUNTING FOUNDATIONS</span><span>${memory.step === 15 ? (signup ? 'DEMO COMPLETE' : 'CHAPTER 02 · YOUR FIRST CUSTOMER') : 'CHAPTER 01 · THE ACCOUNTING EQUATION'}</span></div><div class="mobile-step"><span>${memory.step === 15 ? 'Your next chapter' : 'Your first day'}</span><span>${memory.step === 15 ? 'Preview' : `${Math.min(memory.step+1,15)} / 15`}</span></div><div class="progress" aria-label="Lesson progress: step ${Math.min(memory.step+1,15)} of 15">${Array.from({length:15},(_,i)=>`<i class="${i <= memory.step ? 'done' : ''}"></i>`).join('')}</div><div class="lesson"><section class="lesson-copy"><div class="eyebrow">${v.eyebrow}</div><h1 tabindex="-1">${v.title}</h1><p class="lead">${v.text}</p><div class="lesson-response">${v.content || ''}${v.cta ? `<div class="lesson-actions">${v.cta}</div>` : ''}${v.foot ? `<p class="under-button">${v.foot}</p>` : ''}</div></section><section class="stage" aria-label="Interactive lesson scene"><div class="stage-label"><span class="dot"></span>${v.label}</div>${v.visual}${memory.step === 0 ? '' : ''}</section></div><aside class="guide-bar"><div class="avatar" aria-hidden="true">👨🏻‍🔧</div><p><b>LEO</b>${v.guide}</p><button class="text-button" data-action="guide">${memory.step === 0 ? 'Meet your guide' : 'Why? Ask Leo'}</button></aside><footer class="bottom"><button data-action="back" ${memory.step === 0 ? 'disabled' : ''}>← Back</button><span>${storageAvailable ? 'Progress saved on this device' : 'Progress kept for this session'}</span></footer></main>`;
+    const markup = `<header class="topbar"><div class="brand"><span class="brand-mark" aria-hidden="true">f</span>fintale<span style="color:#7b936c">.</span></div><div class="top-actions"><span class="top-note">A little learning. A lot of possibility.</span><span class="xp" aria-label="${xp()} experience points">✦ &nbsp; ${xp()} XP</span><button class="icon-button" data-action="restart" aria-label="Restart lesson">↺</button></div></header><main class="shell"><div class="breadcrumb"><span>ACCOUNTING FOUNDATIONS</span><span>${memory.step === 15 ? (signup ? 'DEMO COMPLETE' : 'CHAPTER 02 · YOUR FIRST CUSTOMER') : 'CHAPTER 01 · THE ACCOUNTING EQUATION'}</span></div><div class="mobile-step"><span>${memory.step === 15 ? 'Your next chapter' : 'Your first day'}</span><span>${memory.step === 15 ? 'Preview' : `${Math.min(memory.step+1,15)} / 15`}</span></div><div class="progress" aria-label="Lesson progress: step ${Math.min(memory.step+1,15)} of 15">${Array.from({length:15},(_,i)=>`<i class="${i <= memory.step ? 'done' : ''}"></i>`).join('')}</div><div class="lesson"><section class="lesson-copy"><div class="eyebrow">${v.eyebrow}</div><h1 tabindex="-1">${v.title}</h1><p class="lead">${v.text}</p><div class="lesson-response">${v.content || ''}${v.cta ? `<div class="lesson-actions">${v.cta}</div>` : ''}${v.foot ? `<p class="under-button">${v.foot}</p>` : ''}</div></section><section class="stage" aria-label="Interactive lesson scene"><div class="stage-label"><span class="dot"></span>${v.label}</div>${v.visual}${memory.step === 0 ? '' : ''}</section></div><aside class="guide-bar"><div class="avatar" aria-hidden="true">👨🏻‍🔧</div><p><b>LEO</b>${v.guide}</p><button class="text-button" data-action="guide">${memory.step === 0 ? 'Meet your guide' : 'Why? Ask Leo'}</button></aside><footer class="bottom"><button data-action="back" ${memory.step === 0 ? 'disabled' : ''}>← Back</button><span>${storageAvailable ? 'Progress saved on this device' : 'Progress kept for this session'}</span></footer></main>`;
+    patchMarkup(root, markup);
     bindTransfer();
-    document.querySelectorAll('[data-card]').forEach(card=>card.addEventListener('dragstart',e=>{e.dataTransfer.setData('text/plain',card.dataset.card);e.dataTransfer.effectAllowed='move';}));
-    document.querySelectorAll('[data-place]').forEach(zone=>{zone.addEventListener('dragover',e=>{if(!zone.disabled){e.preventDefault();zone.classList.add('drop-ready');}});zone.addEventListener('dragleave',()=>zone.classList.remove('drop-ready'));zone.addEventListener('drop',e=>{e.preventDefault();if(!zone.disabled)placeCard(zone.dataset.place,e.dataTransfer.getData('text/plain'));});});
+    document.querySelectorAll('[data-card]').forEach(card=>{card.ondragstart=e=>{e.dataTransfer.setData('text/plain',card.dataset.card);e.dataTransfer.effectAllowed='move';};});
+    document.querySelectorAll('[data-place]').forEach(zone=>{
+      zone.ondragover=e=>{if(!zone.disabled){e.preventDefault();zone.classList.add('drop-ready');}};
+      zone.ondragleave=()=>zone.classList.remove('drop-ready');
+      zone.ondrop=e=>{e.preventDefault();if(!zone.disabled)placeCard(zone.dataset.place,e.dataTransfer.getData('text/plain'));};
+    });
     const form = document.querySelector('#waitlist');
-    if (form) form.addEventListener('submit', e => { e.preventDefault(); previewSubmitted = true; render(); });
+    if (form) form.onsubmit=e=>{e.preventDefault();previewSubmitted=true;render();};
     if(feedback && feedback !== lastFeedback && window.matchMedia?.('(max-width: 800px)')?.matches) document.querySelector('.feedback')?.scrollIntoView({behavior:'smooth',block:'nearest'});
     lastFeedback = feedback;
   }
   function advance() { memory.step = Math.min(15, memory.step+1); feedback=''; error=false; selected=false; activeCard=''; save(); render(); document.querySelector('h1').focus({preventScroll:true}); window.scrollTo({top:0,behavior:'instant'}); }
   function fund() { if (memory.funded) return; memory.funded=true; selected=false; feedback='€1,000 received. Your workshop now has its starting money. +10 XP'; error=false; save(); render(); }
-  function bindTransfer() { const card = document.querySelector('.money'); const target = document.querySelector('#bank-target'); if (!card || !target) return; card.addEventListener('dragstart', e => { e.dataTransfer.setData('text/plain','owner-contribution-1000'); e.dataTransfer.effectAllowed='move'; }); target.addEventListener('dragover',e=>{ e.preventDefault(); target.classList.add('drop-ready'); }); target.addEventListener('dragleave',()=>target.classList.remove('drop-ready')); target.addEventListener('drop',e=>{ e.preventDefault(); if(e.dataTransfer.getData('text/plain')==='owner-contribution-1000') fund(); }); target.addEventListener('click',()=>{ if(selected) fund(); }); target.addEventListener('keydown',e=>{if(selected && ['Enter',' '].includes(e.key)){e.preventDefault();fund();}}); }
+  function bindTransfer() {
+    const card=document.querySelector('.money'), target=document.querySelector('#bank-target');
+    if(!card || !target) return;
+    card.ondragstart=e=>{e.dataTransfer.setData('text/plain','owner-contribution-1000');e.dataTransfer.effectAllowed='move';};
+    target.ondragover=e=>{e.preventDefault();target.classList.add('drop-ready');};
+    target.ondragleave=()=>target.classList.remove('drop-ready');
+    target.ondrop=e=>{e.preventDefault();if(e.dataTransfer.getData('text/plain')==='owner-contribution-1000')fund();};
+    target.onclick=()=>{if(selected)fund();};
+    target.onkeydown=e=>{if(selected&&['Enter',' '].includes(e.key)){e.preventDefault();fund();}};
+  }
   root.addEventListener('click', e => {
     const card=e.target.closest('[data-card]');if(card){activeCard=activeCard===card.dataset.card?'':card.dataset.card;render();document.querySelector('[data-place]:not(:disabled)')?.focus({preventScroll:true});return;}
     const destination=e.target.closest('[data-place]');if(destination){if(!destination.disabled)placeCard(destination.dataset.place);return;}
