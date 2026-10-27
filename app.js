@@ -8,6 +8,7 @@
   let selected = false, feedback = '', error = false, signup = false, previewSubmitted = false;
   let activeCard = '', equationSlots = {}, lastFeedback = ''; 
   const root = document.querySelector('#app');
+  let feedbackOpen = false;
   const tips = [
     'You are the owner of this fictional workshop. All amounts are imaginary. We leave taxes and other complications for later chapters.',
     'We are tracking the business’s records. Moving €1,000 from you to the business gives the business cash. It does not mean the business earned revenue.',
@@ -67,7 +68,21 @@
   }
   function feedbackHtml() { return feedback ? `<div class="feedback ${error ? 'error' : ''}" role="status">${feedback}</div>` : ''; }
   function confetti() { return '<div class="burst" aria-hidden="true">' + Array.from({length:18}, (_,i) => `<i style="--x:${(i*37)%100}%;--c:${['#c7b2de','#e3b78a','#87a971'][i%3]};--d:${(i%5)*.12}s"></i>`).join('') + '</div>'; }
-  function signupHtml() { if (!signup) return ''; if (previewSubmitted) return '<div class="feedback" role="status">That’s the signup preview. No email was stored or sent. We’ll connect a real waitlist before launch.</div>'; return '<form class="form" id="waitlist"><label for="email">Your email</label><input type="email" id="email" autocomplete="email" placeholder="you@example.com" required><label class="consent"><input type="checkbox" required> I’d like an email when the full Fintale product launches.</label><button class="primary" type="submit">Preview signup <span aria-hidden="true">→</span></button><p class="notice">Demo only. This form does not store or send your email. A live signup and privacy notice will be added before launch.</p></form>'; }
+  function learnerFeedbackHtml() {
+    return `<details class="learner-feedback" id="feedback-panel" ${feedbackOpen?'open':''}><summary><span>Help shape Fintale<small>Share what worked, what didn’t, and what’s next.</small></span><span class="feedback-chevron" aria-hidden="true">＋</span></summary><form id="learner-feedback"><p class="feedback-intro">Your feedback will help shape the next chapter. Answer any of these—no email signup needed.</p><label for="feedback-liked">What did you like?</label><textarea id="feedback-liked" name="liked" rows="3" maxlength="600" placeholder="A moment, interaction or explanation you enjoyed…"></textarea><label for="feedback-improve">What didn’t work for you?</label><textarea id="feedback-improve" name="improve" rows="3" maxlength="600" placeholder="Anything confusing, frustrating or missing…"></textarea><label for="feedback-next">What would you like to see next?</label><textarea id="feedback-next" name="next" rows="3" maxlength="600" placeholder="A topic, feature or a different way to learn…"></textarea><p class="notice" id="feedback-destination">Feedback goes to our public GitHub feedback inbox. A GitHub account is required; review and submit your draft there. Please leave out personal details.</p><button class="secondary" type="submit" aria-describedby="feedback-destination">Continue on GitHub <span aria-hidden="true">↗</span></button><p class="feedback-form-message" id="feedback-form-message" role="status"></p><a id="feedback-draft-link" class="feedback-draft-link" target="_blank" rel="noopener noreferrer" hidden>Open your feedback draft ↗</a></form></details>`;
+  }
+  function createFeedbackUrl(liked, improve, next) {
+    const answers=[liked,improve,next].map(value=>value.trim());
+    if(!answers.some(Boolean)) return null;
+    const headings=['What I liked','What could be improved','What I would like next'];
+    const body='Fintale demo feedback\n\n'+answers.map((answer,i)=>'### '+headings[i]+'\n'+(answer||'Not answered')).join('\n\n');
+    return 'https://github.com/simovicm26/fintale/issues/new?title='+encodeURIComponent('Demo feedback')+'&body='+encodeURIComponent(body);
+  }
+  function signupHtml() {
+    if(!signup)return '';
+    const waitlist=previewSubmitted?'<div class="feedback" role="status">That’s the signup preview. No email was stored or sent. We’ll connect a real waitlist before launch.</div>':'<form class="form" id="waitlist"><label for="email">Your email</label><input type="email" id="email" autocomplete="email" placeholder="you@example.com" required><label class="consent"><input type="checkbox" required> I’d like an email when the full Fintale product launches.</label><button class="primary" type="submit">Preview signup <span aria-hidden="true">→</span></button><p class="notice">Demo only. This form does not store or send your email. A live signup and privacy notice will be added before launch.</p></form>';
+    return waitlist+learnerFeedbackHtml();
+  }
   // Keep unchanged DOM nodes, images, focus and animations in place.
   function patchNode(current, next) {
     if (current.isEqualNode(next)) return;
@@ -112,6 +127,21 @@
     });
     const form = document.querySelector('#waitlist');
     if (form) form.onsubmit=e=>{e.preventDefault();previewSubmitted=true;render();};
+    const feedbackPanel=document.querySelector('#feedback-panel');
+    if(feedbackPanel)feedbackPanel.ontoggle=()=>{feedbackOpen=feedbackPanel.open;};
+    const learnerForm=document.querySelector('#learner-feedback');
+    if(learnerForm)learnerForm.onsubmit=e=>{
+      e.preventDefault();
+      const message=document.querySelector('#feedback-form-message');
+      const values=['liked','improve','next'].map(name=>document.querySelector('#feedback-'+name).value);
+      const url=createFeedbackUrl(...values);
+      if(!url){message.textContent='Please answer at least one question before continuing.';document.querySelector('#feedback-liked').focus();return;}
+      if(url.length>7000){message.textContent='Please shorten your feedback a little before continuing.';return;}
+      const link=document.querySelector('#feedback-draft-link');link.href=url;link.hidden=false;
+      message.textContent='Your draft is ready. Review it on GitHub and choose Submit new issue to send it. If the new tab didn’t open, use the link below.';
+      window.open(url,'_blank','noopener,noreferrer');
+    };
+
     if(feedback && feedback !== lastFeedback && window.matchMedia?.('(max-width: 800px)')?.matches) document.querySelector('.feedback')?.scrollIntoView({behavior:'smooth',block:'nearest'});
     lastFeedback = feedback;
   }
@@ -149,7 +179,7 @@
   });
   document.querySelectorAll('#guide .close, #guide .close-guide').forEach(b=>b.addEventListener('click',()=>document.querySelector('#guide').close()));
   document.querySelector('#restart .cancel').addEventListener('click',()=>document.querySelector('#restart').close());
-  document.querySelector('#restart .reset').addEventListener('click',()=>{memory=fresh();selected=false;activeCard='';equationSlots={};feedback='';error=false;signup=false;previewSubmitted=false;save();document.querySelector('#restart').close();render();});
+  document.querySelector('#restart .reset').addEventListener('click',()=>{memory=fresh();feedbackOpen=false;selected=false;activeCard='';equationSlots={};feedback='';error=false;signup=false;previewSubmitted=false;save();document.querySelector('#restart').close();render();});
   document.querySelectorAll('[data-unlock-close]').forEach(button=>button.addEventListener('click',()=>{document.querySelector('#chapter-unlock').close();document.querySelector('h1').focus({preventScroll:true});}));
   render();
 })();
