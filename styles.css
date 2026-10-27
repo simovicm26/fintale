@@ -75,3 +75,24 @@
   .form input[type=email] { font-size: 16px; }
 }
 @media (prefers-reduced-motion: reduce) { .feedback { scroll-behavior: auto; } }
+
+.learner-feedback { margin-top: 30px; border: 1px solid #d4d9ca; border-radius: 14px; background: #fffdf6; overflow: hidden; max-width: 440px; }
+.learner-feedback summary { display: flex; align-items: center; justify-content: space-between; gap: 15px; padding: 19px; cursor: pointer; font-size: 15px; font-weight: 700; list-style: none; }
+.learner-feedback summary::-webkit-details-marker { display: none; }
+.learner-feedback summary small { display: block; margin-top: 7px; font-size: 11px; font-weight: 400; color: #75816c; line-height: 1.5; }
+.feedback-chevron { color: #617b55; font-size: 23px; }
+.learner-feedback[open] .feedback-chevron { transform: rotate(45deg); }
+.learner-feedback summary:focus-visible { outline: 3px solid #b07fdb; outline-offset: -4px; border-radius: 12px; }
+#learner-feedback { padding: 0 19px 19px; }
+.feedback-intro { font-size: 12px; line-height: 1.7; color: #74806a; margin: 0 0 20px; }
+#learner-feedback label { display: block; font-size: 12px; font-weight: 600; margin: 16px 0 8px; }
+#learner-feedback textarea { display: block; width: 100%; resize: vertical; min-height: 86px; max-height: 260px; border: 1px solid #c8d1bc; border-radius: 9px; background: #fffefa; color: #243c32; font: inherit; font-size: 14px; line-height: 1.6; padding: 12px; }
+#learner-feedback textarea::placeholder { color: #8a9382; }
+#learner-feedback textarea:focus-visible { outline: 3px solid #b8a5d0; outline-offset: 2px; }
+#learner-feedback .notice { margin: 15px 0; }
+#learner-feedback .secondary { width: 100%; gap: 12px; }
+.feedback-form-message { font-size: 12px; line-height: 1.6; margin: 13px 0 0; color: #65755a; }
+.feedback-form-message:empty { display: none; }
+.feedback-draft-link { display: inline-block; margin-top: 12px; font-size: 12px; color: #286247; text-underline-offset: 3px; }
+.feedback-draft-link[hidden] { display: none; }
+@media (max-width:800px) { .learner-feedback { max-width: none; margin-top: 24px; } #learner-feedback textarea { font-size: 16px; } }
