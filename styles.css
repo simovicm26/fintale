@@ -24,3 +24,54 @@
 
 .editorial-art { width: calc(100% + 24px); max-width: 660px; margin-top: 35px; }
 @media(max-width:800px) { .editorial-art { width: 100%; margin: 35px 0 15px; } }
+
+/* Mobile lesson rhythm: context, activity, then response and next action. */
+.mobile-step { display: none; }
+@media (max-width: 800px) {
+  .topbar { padding: 16px 18px; }
+  .shell { padding: 0 18px; margin-top: 4px; }
+  .breadcrumb { font-size: 9px; }
+  .breadcrumb > span:last-child { display: none; }
+  .mobile-step { display: flex; justify-content: space-between; margin-top: 12px; font-size: 11px; font-weight: 600; color: #748075; }
+  .progress { margin: 9px 0 22px; gap: 4px; }
+  .lesson { display: flex; flex-direction: column; align-items: stretch; gap: 0; min-height: 0; }
+  .lesson-copy { display: contents; }
+  .lesson-copy > .eyebrow { order: 0; font-size: 10px; letter-spacing: 1.3px; margin-bottom: 10px; }
+  .lesson-copy > h1 { order: 0; font-size: 31px; letter-spacing: -1.2px; margin: 0 0 12px; }
+  .lesson-copy > .lead { order: 0; font-size: 14px; line-height: 1.6; margin: 0 0 18px; }
+  .lesson > .stage { order: 1; min-height: 260px; padding: 25px 19px 19px; margin-bottom: 18px; border-radius: 18px; }
+  .stage-label { top: 15px; left: 18px; font-size: 9px; letter-spacing: 1px; }
+  .lesson-response { order: 2; min-width: 0; }
+  .lesson-response > .tag { margin-bottom: 16px; }
+  .lesson-response > .feedback { margin: 0 0 16px; scroll-margin: 18px; }
+  .lesson-response > .choices { margin: 0 0 16px; display: grid; grid-template-columns: 1fr; gap: 10px; }
+  .choice { width: 100%; min-height: 49px; padding: 14px 17px; }
+  .lesson-actions { position: sticky; bottom: 12px; z-index: 3; padding-top: 5px; }
+  .lesson-actions > .primary { width: 100%; min-height: 51px; }
+  .under-button { font-size: 10px; margin: 12px 0 0; }
+  .stage .editorial-art { width: 100%; max-width: 360px; margin: 20px auto 0; }
+  .floating-note { top: 40px; right: 12px; padding: 10px 12px; font-size: 10px; }
+  .floating-note strong { font-size: 12px; }
+  .transfer-wrap { margin-top: 23px; }
+  .wallet { min-height: 88px; padding: 17px; margin-bottom: 13px; }
+  .bank { padding: 18px; min-height: 124px; }
+  .bank-title { font-size: 9px; letter-spacing: .7px; }
+  .bank-amount { font-size: 34px; margin: 10px 0 3px; }
+  .instruction { margin: 14px 0 0; }
+  .sort-board, .equation-board { margin-top: 28px; }
+  .sort-board > .object-card { margin-bottom: 22px; }
+  .sort-zones .drop-zone { min-height: 106px; }
+  .sort-zones .drop-zone > span { font-size: 23px; margin-bottom: 8px; }
+  .receipt { width: min(270px, 100%); padding: 21px; margin-top: 16px; }
+  .email-card { margin-top: 17px; padding: 21px; }
+  .takeaway { margin-top: 19px; }
+  .guide-bar { margin-top: 22px; padding-top: 15px; gap: 9px; }
+  .guide-bar .avatar { width: 30px; height: 30px; font-size: 20px; border-radius: 10px; }
+  .guide-bar p { font-size: 0; }
+  .guide-bar p b { font-size: 11px; }
+  .guide-bar .text-button { font-size: 12px; }
+  .bottom { padding: 15px 0 22px; }
+  .form { margin-top: 0; max-width: none; }
+  .form input[type=email] { font-size: 16px; }
+}
+@media (prefers-reduced-motion: reduce) { .feedback { scroll-behavior: auto; } }
