@@ -2,13 +2,17 @@
 
 Learn finance through stories, starting with the accounting equation. You own a fictional repair workshop, fund it, receive equipment and discover assets, liabilities and equity.
 
+## Play
+
+[Open the Fintale demo](https://simovicm26.github.io/fintale/)
+
 ## Play locally
 
-Open `index.html` in a modern browser. No installation or build step is required. Keep the `assets` directory beside the three app files.
+Open `index.html` in a modern browser. No installation or build step is required. Keep `styles.css`, `app.js` and `workshop-pastel-v5.png` beside `index.html`.
 
-## GitHub Pages
+## Hosting
 
-Publish the `main` branch from the repository root in **Settings → Pages → Deploy from a branch**. The `.nojekyll` file allows these static files to be served directly.
+GitHub Pages publishes the `main` branch from the repository root. The `.nojekyll` file serves the static app directly.
 
 ## Demo scope
 
