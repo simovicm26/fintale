@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f2e9">
+  <meta name="description" content="Learn accounting by opening your own fictional repair workshop. A playable Fintale lesson.">
+  <title>Fintale — Your first accounting equation</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app"></div>
+  <dialog id="guide"><button class="close" aria-label="Close guide">×</button><div class="eyebrow">A MOMENT WITH LEO</div><h2>Let’s make it click.</h2><p id="guide-copy"></p><button class="primary close-guide">Got it</button></dialog>
+  <dialog id="restart"><h2>A fresh opening day?</h2><p>This resets your lesson progress and XP on this device.</p><div class="actions"><button class="secondary cancel">Keep playing</button><button class="primary reset">Start again</button></div></dialog>
+  <dialog id="chapter-unlock" aria-labelledby="unlock-title" aria-describedby="unlock-description">
+    <button class="close" aria-label="Close chapter unlock" data-unlock-close>×</button>
+    <div class="unlock-emblem" aria-hidden="true">✦</div>
+    <div class="eyebrow">CHAPTER 2 PREVIEW UNLOCKED</div>
+    <h2 id="unlock-title">Your first customer</h2>
+    <div class="unlock-xp" id="unlock-xp">140 XP · Milestone reached</div>
+    <p id="unlock-description">You can see the whole picture. Now discover what happens when your business starts earning.</p>
+    <div class="unlock-next"><span aria-hidden="true">✓</span><span>Next chapter preview unlocked<small>Full chapter coming soon</small></span></div>
+    <button class="primary" data-unlock-close>See my takeaway <span aria-hidden="true">→</span></button>
+  </dialog>
+  <script src="app.js"></script>
+</body>
+</html>
