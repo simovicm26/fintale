@@ -177,3 +177,6 @@
 
 .survey-navigation { flex-direction: column; align-items: stretch; }
 .survey-navigation > button { width: 100%; }
+
+.signup-honeypot { display: none !important; }
+.form .notice a { color: #286247; text-underline-offset: 3px; }
