@@ -8,7 +8,13 @@
   let selected = false, feedback = '', error = false, signup = false, previewSubmitted = false;
   let activeCard = '', equationSlots = {}, lastFeedback = ''; 
   const root = document.querySelector('#app');
-  let feedbackOpen = false;
+  let feedbackStep = 0;
+  const feedbackAnswers = { liked: '', improve: '', next: '' };
+  const feedbackQuestions = [
+    {key:'liked', title:'What did you<br><em>like?</em>', label:'What did you like?', help:'Was there a moment, interaction or explanation you enjoyed?', placeholder:'Tell us what worked for you…'},
+    {key:'improve', title:'What could<br><em>be better?</em>', label:'What didn’t work for you?', help:'Anything confusing, frustrating or missing? We’d love to know.', placeholder:'Tell us what didn’t work…'},
+    {key:'next', title:'What would you<br><em>like next?</em>', label:'What would you like to see next?', help:'A finance topic, feature or different way to learn—what would bring you back?', placeholder:'Tell us what you’d like to explore…'}
+  ];
   const tips = [
     'You are the owner of this fictional workshop. All amounts are imaginary. We leave taxes and other complications for later chapters.',
     'We are tracking the business’s records. Moving €1,000 from you to the business gives the business cash. It does not mean the business earned revenue.',
@@ -33,7 +39,22 @@
   const workshop = `<img class="workshop-art editorial-art" src="workshop-pastel-v5.png" width="1536" height="1024" decoding="async" alt="A pastel illustrated repair workshop with sage drawers, peach tools and your new workshop keys.">`;
   function button(label = 'Continue', action = 'next', disabled = false) { return `<button class="primary" data-action="${action}" ${disabled ? 'disabled' : ''}>${label}<span aria-hidden="true">→</span></button>`; }
   function view() {
-    if (memory.step === 15 && signup) return { eyebrow: 'YOU’VE COMPLETED THE DEMO', title: 'Enjoyed the story?<br><em>There’s more to come.</em>', text: 'This is a first taste of Fintale. If you enjoyed it, leave your email to be notified when the full product launches—with more stories and finance courses to explore.', content: signupHtml(), visual: workshop + '<div class="floating-note">Your next chapter awaits.<strong>Keep learning with Fintale.</strong></div>', label: 'THE BEGINNING OF YOUR FINANCE JOURNEY', guide: 'Thanks for playing. Signing up is optional—you’ve already unlocked the full takeaway from this demo.' };
+    if(memory.step===15 && signup) {
+      if(feedbackStep<3) {
+        const q=feedbackQuestions[feedbackStep];
+        return {eyebrow:'OPTIONAL FEEDBACK · '+(feedbackStep+1)+' OF 3',title:q.title,text:q.help,
+          content:feedbackSliderControls(),visual:feedbackQuestionHtml(q),label:'HELP SHAPE FINTALE',
+          guide:'Answer as much or as little as you like. You can skip feedback and continue to the optional email step.'};
+      }
+      if(feedbackStep===3) {
+        const url=createFeedbackUrl(feedbackAnswers.liked,feedbackAnswers.improve,feedbackAnswers.next);
+        return {eyebrow:'YOUR FEEDBACK · OPTIONAL',title:'Thanks for<br><em>helping us grow.</em>',text:url?'You can review your feedback on GitHub before sending it, or continue without sending.':'No feedback this time? That’s fine. You can continue to the optional email step.',
+          content:(url && url.length<=7000?'<a class="primary feedback-review-link" href="'+url+'" target="_blank" rel="noopener noreferrer">Review feedback on GitHub <span aria-hidden="true">↗</span></a><p class="notice">A GitHub account is required. Feedback is public. Review the draft and submit it there to send it; opening it alone does not send anything.</p>':url?'<p class="notice">Your draft is too long for a GitHub link. Use Back to shorten it before sending.</p>':'')+'<div class="survey-navigation"><button class="secondary" data-action="survey-back">Back</button>'+button('Continue to email','survey-email')+'</div>',
+          visual:feedbackReviewHtml(),label:'YOUR THOUGHTS, TOGETHER',guide:'Your feedback isn’t sent automatically. Email signup is a separate, optional next step.'};
+      }
+      if(feedbackStep===5) return {eyebrow:'DEMO COMPLETE',title:'Thanks for<br><em>playing Fintale.</em>',text:'You’ve taken your first step into business finance. Your takeaway is yours to revisit whenever you like.',cta:button('Revisit my takeaway','return-takeaway'),visual:takeaway(),label:'YOUR FIRST BUSINESS SNAPSHOT',guide:'You don’t need to share feedback or an email to finish the demo.'};
+      return {eyebrow:'KEEP IN TOUCH · OPTIONAL',title:'Enjoyed the story?<br><em>There’s more to come.</em>',text:'This is a first taste of Fintale. If you enjoyed it, leave your email to be notified when the full product launches—with more stories and finance courses to explore.',content:signupHtml(),visual:workshop+'<div class="floating-note">Your next chapter awaits.<strong>Keep learning with Fintale.</strong></div>',label:'THE BEGINNING OF YOUR FINANCE JOURNEY',guide:'Thanks for playing. Signing up is optional—you’ve already unlocked the full takeaway from this demo.'};
+    }
     switch (memory.step) {
       case 0: return { eyebrow: 'CHAPTER 01 · YOUR FIRST DAY', title: 'Small workshop.<br><em>Big first step.</em>', text: 'The keys are yours. You know how to fix things. Now, let’s learn how to run the business.', content: '<div class="tag">◷ &nbsp; 5–7 minutes &nbsp; · &nbsp; No experience needed</div>', cta: button('Open my workshop'), foot: 'Learn by doing. No spreadsheets required.', visual: workshop + '<div class="floating-note">A new beginning.<strong>You’re the owner.</strong></div>', label: 'ATLAS REPAIRS · OPENING DAY', guide: 'I’m Leo. I’ll help with the numbers. You run the workshop.' };
       case 1: return { eyebrow: '01 / MAKE IT YOURS', title: 'A little<br><em>starting fuel.</em>', text: 'Give Atlas Repairs €1,000 from your personal money. Your workshop keeps its own records.', content: feedbackHtml(), cta: memory.funded ? button('See what changed') : '', foot: '', visual: `<div class="transfer-wrap"><div class="wallet"><div class="wallet-title">YOUR PERSONAL WALLET</div>${memory.funded ? '<div class="empty-wallet">€0</div>' : `<button class="money ${selected ? 'selected' : ''}" draggable="true" data-action="select" aria-pressed="${selected}"><small>EUR</small>€1,000<span aria-hidden="true">⠿</span></button>`}</div><div id="bank-target" ${!memory.funded ? 'role="button" tabindex="0" aria-label="Place selected €1,000 in business bank"' : ''} class="${selected ? 'drop-ready' : ''}">${bank(memory.funded ? '<span class="success-dot">Received ✓</span>' : '')}</div><p class="instruction">${memory.funded ? 'One contribution. One new beginning.' : selected ? 'Now tap the business bank to place your money.' : 'Drag the money to the bank, or tap the card then tap the bank.'}</p></div>`, label: 'YOUR FIRST BUSINESS EVENT', guide: 'Your money and the workshop’s money belong in separate records.' };
@@ -68,8 +89,20 @@
   }
   function feedbackHtml() { return feedback ? `<div class="feedback ${error ? 'error' : ''}" role="status">${feedback}</div>` : ''; }
   function confetti() { return '<div class="burst" aria-hidden="true">' + Array.from({length:18}, (_,i) => `<i style="--x:${(i*37)%100}%;--c:${['#c7b2de','#e3b78a','#87a971'][i%3]};--d:${(i%5)*.12}s"></i>`).join('') + '</div>'; }
-  function learnerFeedbackHtml() {
-    return `<details class="learner-feedback" id="feedback-panel" ${feedbackOpen?'open':''}><summary><span>Help shape Fintale<small>Share what worked, what didn’t, and what’s next.</small></span><span class="feedback-chevron" aria-hidden="true">＋</span></summary><form id="learner-feedback"><p class="feedback-intro">Your feedback will help shape the next chapter. Answer any of these—no email signup needed.</p><label for="feedback-liked">What did you like?</label><textarea id="feedback-liked" name="liked" rows="3" maxlength="600" placeholder="A moment, interaction or explanation you enjoyed…"></textarea><label for="feedback-improve">What didn’t work for you?</label><textarea id="feedback-improve" name="improve" rows="3" maxlength="600" placeholder="Anything confusing, frustrating or missing…"></textarea><label for="feedback-next">What would you like to see next?</label><textarea id="feedback-next" name="next" rows="3" maxlength="600" placeholder="A topic, feature or a different way to learn…"></textarea><p class="notice" id="feedback-destination">Feedback goes to our public GitHub feedback inbox. A GitHub account is required; review and submit your draft there. Please leave out personal details.</p><button class="secondary" type="submit" aria-describedby="feedback-destination">Continue on GitHub <span aria-hidden="true">↗</span></button><p class="feedback-form-message" id="feedback-form-message" role="status"></p><a id="feedback-draft-link" class="feedback-draft-link" target="_blank" rel="noopener noreferrer" hidden>Open your feedback draft ↗</a></form></details>`;
+  function escapeText(value) { return String(value).replace(/[&<>"']/g,character=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[character])); }
+  function feedbackQuestionHtml(q) {
+    return '<div class="survey-card" id="survey-question-'+q.key+'"><div class="survey-step"><span>QUESTION '+(feedbackStep+1)+' OF 3</span><span>Optional</span></div><div class="survey-dots" aria-hidden="true">'+feedbackQuestions.map((_,i)=>'<i class="'+(i<=feedbackStep?'done':'')+'"></i>').join('')+'</div><label for="feedback-answer">'+q.label+'</label><textarea id="feedback-answer" rows="5" maxlength="600" placeholder="'+q.placeholder+'">'+escapeText(feedbackAnswers[q.key])+'</textarea><p class="notice">Leave this blank if you’d rather skip this question. Your answers stay on this page until you choose to send them.</p></div>';
+  }
+  function feedbackSliderControls() { return '<div class="survey-navigation">'+(feedbackStep?'<button class="secondary" data-action="survey-back">Back</button>':'')+button(feedbackStep===2?'Review feedback':'Next question','survey-next')+'</div><button class="text-button survey-skip" data-action="survey-skip">Skip feedback · Continue to email</button>'; }
+  function feedbackReviewHtml() {
+    return '<div class="survey-review"><div class="eyebrow">YOUR FEEDBACK DRAFT</div>'+feedbackQuestions.map(q=>'<div class="survey-review-item"><b>'+q.label+'</b><p>'+escapeText(feedbackAnswers[q.key].trim()||'Skipped')+'</p></div>').join('')+'</div>';
+  }
+  function moveFeedback(step) { feedbackStep=Math.max(0,Math.min(5,step));render();document.querySelector('h1').focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'}); }
+  function interactionCoachHtml() {
+    const active=Boolean(selected||activeCard);
+    const messages={1:memory.funded?'':selected?'Now tap the business bank to place €1,000.':'Tap the €1,000 card to pick it up. You can also drag it.',7:memory.machine?'':activeCard?'Now tap “What the business has.”':'Tap the machine card to pick it up.',8:memory.invoice?'':activeCard?'Now tap “What the business owes.”':'Tap the invoice card to pick it up.',12:memory.equation?'':activeCard?'Now tap the matching box to place your amount.':'Pick an amount card, then tap its matching box.'};
+    if(!messages[memory.step])return '';
+    return '<div class="coach-slot"><div class="interaction-coach" id="coach-'+memory.step+'-'+(active?'place':'pick')+'" role="status"><span aria-hidden="true">'+(active?'↗':'☝')+'</span><span>'+messages[memory.step]+'</span></div></div>';
   }
   function createFeedbackUrl(liked, improve, next) {
     const answers=[liked,improve,next].map(value=>value.trim());
@@ -81,7 +114,7 @@
   function signupHtml() {
     if(!signup)return '';
     const waitlist=previewSubmitted?'<div class="feedback" role="status">That’s the signup preview. No email was stored or sent. We’ll connect a real waitlist before launch.</div>':'<form class="form" id="waitlist"><label for="email">Your email</label><input type="email" id="email" autocomplete="email" placeholder="you@example.com" required><label class="consent"><input type="checkbox" required> I’d like an email when the full Fintale product launches.</label><button class="primary" type="submit">Preview signup <span aria-hidden="true">→</span></button><p class="notice">Demo only. This form does not store or send your email. A live signup and privacy notice will be added before launch.</p></form>';
-    return waitlist+learnerFeedbackHtml();
+    return waitlist+'<button class="text-button survey-skip" data-action="email-skip">Not now · Finish demo</button>';
   }
   // Keep unchanged DOM nodes, images, focus and animations in place.
   function patchNode(current, next) {
@@ -116,7 +149,7 @@
   }
   function render() {
     const v = view();
-    const markup = `<header class="topbar"><div class="brand"><span class="brand-mark" aria-hidden="true">f</span>fintale<span style="color:#7b936c">.</span></div><div class="top-actions"><span class="top-note">A little learning. A lot of possibility.</span><span class="xp" aria-label="${xp()} experience points">✦ &nbsp; ${xp()} XP</span><button class="icon-button" data-action="restart" aria-label="Restart lesson">↺</button></div></header><main class="shell"><div class="breadcrumb"><span>ACCOUNTING FOUNDATIONS</span><span>${memory.step === 15 ? (signup ? 'DEMO COMPLETE' : 'CHAPTER 02 · YOUR FIRST CUSTOMER') : 'CHAPTER 01 · THE ACCOUNTING EQUATION'}</span></div><div class="mobile-step"><span>${memory.step === 15 ? 'Your next chapter' : 'Your first day'}</span><span>${memory.step === 15 ? 'Preview' : `${Math.min(memory.step+1,15)} / 15`}</span></div><div class="progress" aria-label="Lesson progress: step ${Math.min(memory.step+1,15)} of 15">${Array.from({length:15},(_,i)=>`<i class="${i <= memory.step ? 'done' : ''}"></i>`).join('')}</div><div class="lesson"><section class="lesson-copy"><div class="eyebrow">${v.eyebrow}</div><h1 tabindex="-1">${v.title}</h1><p class="lead">${v.text}</p><div class="lesson-response">${v.content || ''}${v.cta ? `<div class="lesson-actions">${v.cta}</div>` : ''}${v.foot ? `<p class="under-button">${v.foot}</p>` : ''}</div></section><section class="stage" aria-label="Interactive lesson scene"><div class="stage-label"><span class="dot"></span>${v.label}</div>${v.visual}${memory.step === 0 ? '' : ''}</section></div><aside class="guide-bar"><div class="avatar" aria-hidden="true">👨🏻‍🔧</div><p><b>LEO</b>${v.guide}</p><button class="text-button" data-action="guide">${memory.step === 0 ? 'Meet your guide' : 'Why? Ask Leo'}</button></aside><footer class="bottom"><button data-action="back" ${memory.step === 0 ? 'disabled' : ''}>← Back</button><span>${storageAvailable ? 'Progress saved on this device' : 'Progress kept for this session'}</span></footer></main>`;
+    const markup = `<header class="topbar"><div class="brand"><span class="brand-mark" aria-hidden="true">f</span>fintale<span style="color:#7b936c">.</span></div><div class="top-actions"><span class="top-note">A little learning. A lot of possibility.</span><span class="xp" aria-label="${xp()} experience points">✦ &nbsp; ${xp()} XP</span><button class="icon-button" data-action="restart" aria-label="Restart lesson">↺</button></div></header><main class="shell"><div class="breadcrumb"><span>ACCOUNTING FOUNDATIONS</span><span>${memory.step === 15 ? (signup ? 'DEMO COMPLETE' : 'CHAPTER 02 · YOUR FIRST CUSTOMER') : 'CHAPTER 01 · THE ACCOUNTING EQUATION'}</span></div><div class="mobile-step"><span>${memory.step === 15 ? 'Your next chapter' : 'Your first day'}</span><span>${memory.step === 15 ? 'Preview' : `${Math.min(memory.step+1,15)} / 15`}</span></div><div class="progress" aria-label="Lesson progress: step ${Math.min(memory.step+1,15)} of 15">${Array.from({length:15},(_,i)=>`<i class="${i <= memory.step ? 'done' : ''}"></i>`).join('')}</div><div class="lesson"><section class="lesson-copy"><div class="eyebrow">${v.eyebrow}</div><h1 tabindex="-1">${v.title}</h1><p class="lead">${v.text}</p><div class="lesson-response">${v.content || ''}${v.cta ? `<div class="lesson-actions">${v.cta}</div>` : ''}${v.foot ? `<p class="under-button">${v.foot}</p>` : ''}</div></section><section class="stage" data-placement-active="${Boolean(selected||activeCard)}" aria-label="Interactive lesson scene"><div class="stage-label"><span class="dot"></span>${v.label}</div>${v.visual}${interactionCoachHtml()}</section></div><aside class="guide-bar"><div class="avatar" aria-hidden="true">👨🏻‍🔧</div><p><b>LEO</b>${v.guide}</p><button class="text-button" data-action="guide">${memory.step === 0 ? 'Meet your guide' : 'Why? Ask Leo'}</button></aside><footer class="bottom"><button data-action="back" ${memory.step === 0 ? 'disabled' : ''}>← Back</button><span>${storageAvailable ? 'Progress saved on this device' : 'Progress kept for this session'}</span></footer></main>`;
     patchMarkup(root, markup);
     bindTransfer();
     document.querySelectorAll('[data-card]').forEach(card=>{card.ondragstart=e=>{e.dataTransfer.setData('text/plain',card.dataset.card);e.dataTransfer.effectAllowed='move';};});
@@ -127,21 +160,11 @@
     });
     const form = document.querySelector('#waitlist');
     if (form) form.onsubmit=e=>{e.preventDefault();previewSubmitted=true;render();};
-    const feedbackPanel=document.querySelector('#feedback-panel');
-    if(feedbackPanel)feedbackPanel.ontoggle=()=>{feedbackOpen=feedbackPanel.open;};
-    const learnerForm=document.querySelector('#learner-feedback');
-    if(learnerForm)learnerForm.onsubmit=e=>{
-      e.preventDefault();
-      const message=document.querySelector('#feedback-form-message');
-      const values=['liked','improve','next'].map(name=>document.querySelector('#feedback-'+name).value);
-      const url=createFeedbackUrl(...values);
-      if(!url){message.textContent='Please answer at least one question before continuing.';document.querySelector('#feedback-liked').focus();return;}
-      if(url.length>7000){message.textContent='Please shorten your feedback a little before continuing.';return;}
-      const link=document.querySelector('#feedback-draft-link');link.href=url;link.hidden=false;
-      message.textContent='Your draft is ready. Review it on GitHub and choose Submit new issue to send it. If the new tab didn’t open, use the link below.';
-      window.open(url,'_blank','noopener,noreferrer');
-    };
-
+    const answer=document.querySelector('#feedback-answer');
+    if(answer && signup && feedbackStep<3) {
+      answer.value=feedbackAnswers[feedbackQuestions[feedbackStep].key];
+      answer.oninput=()=>{feedbackAnswers[feedbackQuestions[feedbackStep].key]=answer.value;};
+    }
     if(feedback && feedback !== lastFeedback && window.matchMedia?.('(max-width: 800px)')?.matches) document.querySelector('.feedback')?.scrollIntoView({behavior:'smooth',block:'nearest'});
     lastFeedback = feedback;
   }
@@ -161,6 +184,13 @@
     const card=e.target.closest('[data-card]');if(card){activeCard=activeCard===card.dataset.card?'':card.dataset.card;render();document.querySelector('[data-place]:not(:disabled)')?.focus({preventScroll:true});return;}
     const destination=e.target.closest('[data-place]');if(destination){if(!destination.disabled)placeCard(destination.dataset.place);return;}
     const action=e.target.closest('[data-action]')?.dataset.action; if (!action) return;
+    if(action==='survey-next'){moveFeedback(feedbackStep+1);return;}
+    if(action==='survey-back'){moveFeedback(feedbackStep-1);return;}
+    if(action==='survey-skip'||action==='survey-email'){moveFeedback(4);return;}
+    if(action==='email-skip'){moveFeedback(5);return;}
+    if(action==='return-takeaway'){signup=false;memory.step=14;save();render();document.querySelector('h1').focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});return;}
+    if(action==='back'&&memory.step===15&&signup){if(feedbackStep>0)moveFeedback(feedbackStep-1);else{signup=false;render();}return;}
+
     if (action==='next') { const required={1:'funded',3:'recorded',4:'earned',6:'delivered',7:'machine',8:'invoice',10:'cashCheck',12:'equation',13:'practice'};if(required[memory.step]&&!memory[required[memory.step]])return; advance(); }
     if (action==='back' && memory.step>0) { memory.step--; feedback=''; error=false; selected=false; activeCard=''; save(); render(); document.querySelector('h1').focus({preventScroll:true}); }
     if (action==='select') { selected=!selected; render(); if(selected) document.querySelector('#bank-target').focus({preventScroll:true}); }
@@ -175,11 +205,11 @@
     if (action==='complete' && memory.step===13 && memory.practice && memory.equation) { const firstCompletion=!memory.completed; memory.completed=true; advance(); if(firstCompletion){document.querySelector('#unlock-xp').textContent=`${xp()} XP · Milestone reached`;document.querySelector('#chapter-unlock').showModal();} }
     if (action==='guide') { document.querySelector('#guide-copy').textContent=tips[memory.step]; document.querySelector('#guide').showModal(); }
     if (action==='restart') document.querySelector('#restart').showModal();
-    if (action==='signup') { signup=true; render(); document.querySelector('#email')?.focus(); }
+    if (action==='signup') { signup=true; feedbackStep=0; render(); document.querySelector('h1').focus({preventScroll:true}); window.scrollTo({top:0,behavior:'instant'}); }
   });
   document.querySelectorAll('#guide .close, #guide .close-guide').forEach(b=>b.addEventListener('click',()=>document.querySelector('#guide').close()));
   document.querySelector('#restart .cancel').addEventListener('click',()=>document.querySelector('#restart').close());
-  document.querySelector('#restart .reset').addEventListener('click',()=>{memory=fresh();feedbackOpen=false;selected=false;activeCard='';equationSlots={};feedback='';error=false;signup=false;previewSubmitted=false;save();document.querySelector('#restart').close();render();});
+  document.querySelector('#restart .reset').addEventListener('click',()=>{memory=fresh();feedbackStep=0;for(const name of Object.keys(feedbackAnswers))feedbackAnswers[name]='';selected=false;activeCard='';equationSlots={};feedback='';error=false;signup=false;previewSubmitted=false;save();document.querySelector('#restart').close();render();});
   document.querySelectorAll('[data-unlock-close]').forEach(button=>button.addEventListener('click',()=>{document.querySelector('#chapter-unlock').close();document.querySelector('h1').focus({preventScroll:true});}));
   render();
 })();
