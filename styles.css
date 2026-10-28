@@ -133,6 +133,6 @@
 .floating-coach .interaction-coach::after { content: ''; position: absolute; left: calc(var(--coach-arrow, 50%) - 6px); width: 12px; height: 12px; background: #f2eafa; transform: rotate(45deg); }
 .floating-coach[data-side="above"] .interaction-coach::after { bottom: -7px; border-right: 1px solid #c5b3d8; border-bottom: 1px solid #c5b3d8; }
 .floating-coach[data-side="below"] .interaction-coach::after { top: -7px; border-left: 1px solid #c5b3d8; border-top: 1px solid #c5b3d8; }
-.stage .instruction { display: none; }
+.stage:has(#bank-target, .sort-board, .equation-board) .instruction { display: none; }
 @keyframes action-pulse { 0%,100% { box-shadow: 0 0 0 0 #bba1d34d; } 55% { box-shadow: 0 0 0 8px #bba1d31f; } }
 @media(prefers-reduced-motion:reduce) { #app .hint-target,.floating-coach .interaction-coach { animation: none !important; transition: none !important; } }
