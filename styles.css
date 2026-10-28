@@ -96,3 +96,29 @@
 .feedback-draft-link { display: inline-block; margin-top: 12px; font-size: 12px; color: #286247; text-underline-offset: 3px; }
 .feedback-draft-link[hidden] { display: none; }
 @media (max-width:800px) { .learner-feedback { max-width: none; margin-top: 24px; } #learner-feedback textarea { font-size: 16px; } }
+
+/* Optional feedback carousel, shown before email. */
+.survey-card,.survey-review { width: 100%; max-width: 380px; background: #fffdf6; border: 1px solid #d2d9c6; border-radius: 16px; padding: 25px; margin-top: 27px; }
+.survey-card { animation: question-arrive .25s ease; }
+.survey-step { display: flex; justify-content: space-between; gap: 15px; color: #7b876f; font-size: 10px; letter-spacing: 1px; }
+.survey-dots { display: flex; gap: 6px; margin: 15px 0 26px; }.survey-dots i { height: 4px; flex: 1; background: #e4e6dc; border-radius: 4px; }.survey-dots .done { background: #729567; }
+.survey-card label { display: block; font-size: 17px; font-weight: 700; line-height: 1.5; margin-bottom: 14px; }
+.survey-card textarea { display: block; width: 100%; border: 1px solid #c9d2bd; border-radius: 10px; padding: 13px; resize: vertical; min-height: 150px; max-height: 300px; font: inherit; font-size: 14px; color: #243c32; background: #fffefa; line-height: 1.7; }.survey-card textarea:focus-visible { outline: 3px solid #bcaad5; outline-offset: 3px; }.survey-card textarea::placeholder { color: #929989; }
+.survey-card .notice { margin: 14px 0 0; }.survey-navigation { display: flex; gap: 12px; align-items: center; margin-top: 20px; flex-wrap: wrap; }.survey-skip { display: block; margin-top: 19px; color: #718068; }
+.survey-review-item { padding: 16px 0; border-bottom: 1px solid #e1e5d7; }.survey-review-item:last-child { border-bottom: 0; }.survey-review-item b { font-size: 12px; }.survey-review-item p { color: #6e7b64; font-size: 13px; line-height: 1.65; white-space: pre-wrap; overflow-wrap: anywhere; margin: 8px 0 0; max-height: 130px; overflow-y: auto; }
+.feedback-review-link { text-decoration: none; text-align: center; }
+/* Selection cues are limited to interactive cards and their destinations. */
+.money:not(.selected), .object-card:not(.selected) { animation: card-nudge 2.6s ease-in-out 3; }
+.money.selected, .object-card.selected { box-shadow: 0 4px 0 #b4a3cd, 0 0 0 5px #e7def3; transform: translateY(-3px); }
+.money:active, .object-card:active, .choice:active { transform: scale(.97); }
+.stage[data-placement-active="true"] [data-place]:not(:disabled), .stage[data-placement-active="true"] #bank-target .bank { outline: 2px dashed #8870a8; outline-offset: 4px; animation: destination-nudge 1.8s ease-in-out 4; }
+.coach-slot { width: 100%; max-width: 355px; margin-top: 17px; }
+.interaction-coach { display: flex; gap: 10px; align-items: center; background: #fffdf5; border: 1px solid #d4d9c8; border-radius: 12px; padding: 12px 15px; box-shadow: 0 4px 12px #4b5d3b0b; font-size: 12px; line-height: 1.6; color: #536b47; animation: coach-pop .24s ease-out; }
+.interaction-coach>span:first-child { font-size: 21px; color: #85729b; }
+.stage:has(.interaction-coach) .instruction { display: none; }
+@keyframes card-nudge { 0%,100% { box-shadow: 0 4px 0 #bcc9ab; } 45% { box-shadow: 0 4px 0 #bcc9ab, 0 0 0 6px #b8cfa747; } }
+@keyframes destination-nudge { 0%,100% { outline-color: #b2a1c6; } 50% { outline-color: #74578e; } }
+@keyframes coach-pop { from { opacity: 0; transform: translateY(5px) scale(.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes question-arrive { from { opacity: 0; transform: translateX(8px); } to { opacity: 1; transform: translateX(0); } }
+@media(max-width:800px) { .survey-card,.survey-review { padding: 20px; margin-top: 24px; }.survey-card textarea { font-size: 16px; min-height: 135px; }.survey-navigation { margin-top: 0; flex-wrap: nowrap; }.survey-navigation .primary { flex: 1; width: auto; gap: 13px; }.survey-navigation .secondary { padding-left: 17px; padding-right: 17px; }.survey-skip { width: 100%; text-align: center; padding: 12px 8px; margin-top: 10px; }.coach-slot { margin-top: 15px; }.interaction-coach { font-size: 12px; padding: 10px 12px; } }
+@media(prefers-reduced-motion:reduce) { .money,.object-card,.survey-card,.interaction-coach,.stage [data-place],.stage #bank-target .bank { animation: none !important; transition: none !important; } }
