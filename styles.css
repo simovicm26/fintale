@@ -122,3 +122,17 @@
 @keyframes question-arrive { from { opacity: 0; transform: translateX(8px); } to { opacity: 1; transform: translateX(0); } }
 @media(max-width:800px) { .survey-card,.survey-review { padding: 20px; margin-top: 24px; }.survey-card textarea { font-size: 16px; min-height: 135px; }.survey-navigation { margin-top: 0; flex-wrap: nowrap; }.survey-navigation .primary { flex: 1; width: auto; gap: 13px; }.survey-navigation .secondary { padding-left: 17px; padding-right: 17px; }.survey-skip { width: 100%; text-align: center; padding: 12px 8px; margin-top: 10px; }.coach-slot { margin-top: 15px; }.interaction-coach { font-size: 12px; padding: 10px 12px; } }
 @media(prefers-reduced-motion:reduce) { .money,.object-card,.survey-card,.interaction-coach,.stage [data-place],.stage #bank-target .bank { animation: none !important; transition: none !important; } }
+
+/* A floating coach points at the current action, rather than sitting below it. */
+.money:not(.selected),.object-card:not(.selected) { animation: none; }
+.stage[data-placement-active="true"] [data-place]:not(:disabled),.stage[data-placement-active="true"] #bank-target .bank { animation: none; outline: none; }
+#app .hint-target { outline: 2px solid #9d83b9 !important; outline-offset: 4px; animation: action-pulse 2s ease-in-out infinite !important; }
+.floating-coach { position: fixed; z-index: 80; margin: 0; max-width: calc(100vw - 24px); pointer-events: none; }
+.floating-coach[hidden] { display: none !important; }
+.floating-coach .interaction-coach { position: relative; padding: 13px 16px; background: #f2eafa; border: 1px solid #c5b3d8; color: #4f3b63; box-shadow: 0 7px 22px #47305724; font-size: 13px; font-weight: 600; line-height: 1.5; animation: coach-pop .2s ease-out; }
+.floating-coach .interaction-coach::after { content: ''; position: absolute; left: calc(var(--coach-arrow, 50%) - 6px); width: 12px; height: 12px; background: #f2eafa; transform: rotate(45deg); }
+.floating-coach[data-side="above"] .interaction-coach::after { bottom: -7px; border-right: 1px solid #c5b3d8; border-bottom: 1px solid #c5b3d8; }
+.floating-coach[data-side="below"] .interaction-coach::after { top: -7px; border-left: 1px solid #c5b3d8; border-top: 1px solid #c5b3d8; }
+.stage .instruction { display: none; }
+@keyframes action-pulse { 0%,100% { box-shadow: 0 0 0 0 #bba1d34d; } 55% { box-shadow: 0 0 0 8px #bba1d31f; } }
+@media(prefers-reduced-motion:reduce) { #app .hint-target,.floating-coach .interaction-coach { animation: none !important; transition: none !important; } }
