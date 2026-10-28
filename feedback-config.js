@@ -1,0 +1,2 @@
+// Public browser settings. This key cannot read saved responses.
+window.FintaleFeedbackConfig = Object.freeze({url:'https://omjetajkavrxhztrggnr.supabase.co',key:'sb_publishable_sN2z2LuWEJngsJVXN4QvLg_uqxhnle0'});
