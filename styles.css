@@ -170,7 +170,10 @@
   .survey-card textarea { font-size: 16px; line-height: 1.65; padding: 14px; min-height: 184px; max-height: none; }
   .survey-card .notice { font-size: 12px; line-height: 1.65; margin-top: 18px; }
   .survey-navigation { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 0; }
-  .survey-navigation:has(.secondary) { grid-template-columns: minmax(76px,auto) minmax(0,1fr); }
+  .survey-navigation:has(.secondary) { grid-template-columns: 1fr; }
   .survey-navigation > button { width: 100%; min-height: 52px; padding: 14px 16px; gap: 10px; }
   .lesson-response > .survey-skip { width: 100%; min-height: 48px; margin-top: 20px; font-size: 13px; line-height: 1.6; }
 }
+
+.survey-navigation { flex-direction: column; align-items: stretch; }
+.survey-navigation > button { width: 100%; }
