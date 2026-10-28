@@ -18,8 +18,8 @@ Submissions use Brevo’s public form endpoint, not a secret API key. The browse
 
 ## Confirmation emails
 
-Brevo currently requires the account owner to verify their phone before simple or double confirmation emails can be enabled. Until this is completed and a template is selected, submissions save but no confirmation email is sent. In Marketing → Forms, edit the Fintale form → Settings to enable confirmation after verification. The frontend does not claim a confirmation was sent.
+Automatic simple confirmation emails are enabled. The form uses the active template **Fintale — Signup confirmation** (#5), with sender name **Fintale** and subject **You’re on the Fintale list!**. The message confirms signup, explains that more courses are in development, links back to the demo, and includes an unsubscribe link. The thank-you redirect remains signup-thanks.html. Brevo’s delivery log confirmed a test email was delivered to the owner. The sender currently uses Brevo’s sending domain because a custom sending domain is not authenticated.
 
 ## Verification
 
-The chapter event harness, DOM preservation and artwork loader checks pass. Payload checks cover all four feedback fields, required consent, safe escaping and 500-character limits. A clearly marked setup submission using the owner’s address was accepted by Brevo, returned to the thank-you page, and all four values were verified in the contact record. No learner email was used for testing.
+The chapter event harness, DOM preservation and artwork loader checks pass. Payload checks cover all four feedback fields, required consent, safe escaping and 500-character limits. Clearly marked setup submissions using the owner’s address were accepted through both Brevo’s hosted form and the live Fintale app, returned to the thank-you page, and all four values—including punctuation and angle brackets—were verified in the contact record. No learner email was used for testing.
