@@ -1,4 +1,4 @@
-# Fintale demo
+# Ledge demo
 
 Play: https://simovicm26.github.io/fintale/
 
@@ -16,12 +16,12 @@ The browser uses a public publishable key. Row-level security is enabled; anonym
 
 ## Email signup
 
-Brevo stores email and explicit launch-update consent, separately from feedback. The existing Fintale signup form, list and confirmation template #5 remain active. The page only advances after Brevo's successful native form submission. The email address is never included in a page URL or sent to Supabase. Earlier feedback stored as Brevo contact attributes remains available there.
+Brevo stores email and explicit launch-update consent, separately from feedback. The existing Ledge signup form, list and confirmation template #5 remain active. The page only advances after Brevo's successful native form submission. The email address is never included in a page URL or sent to Supabase. Earlier feedback stored as Brevo contact attributes remains available there.
 
 ## Privacy and mobile
 
-privacy.html identifies the project owner, contact address, providers, stored data and deletion choices. Signup fields appear above supporting artwork on phones. Textarea text is 16px and Next and Back actions are stacked. favicon.svg supplies the Fintale tab icon.
+privacy.html identifies the project owner, contact address, providers, stored data and deletion choices. Signup fields appear above supporting artwork on phones. Textarea text is 16px and Next and Back actions are stacked. favicon.svg supplies the Ledge tab icon.
 
 ## Verification
 
-Chapter progression, DOM preservation, image loading and mocked submission checks cover the main journey. Database grants and anonymous insertion were checked in a rolled-back SQL transaction. Final live submission verification is recorded in the owner setup guide.
+Chapter progression, DOM preservation, image loading and mocked submission checks cover the main journey. Database grants and anonymous insertion were checked in a rolled-back SQL transaction. A live owner-address signup successfully forwarded to optional feedback; one clearly marked SETUP TEST response was saved and all four answers were verified in the owner dashboard. Privacy links open in the same tab.
