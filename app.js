@@ -46,13 +46,7 @@
           content:feedbackSliderControls(),visual:feedbackQuestionHtml(q),label:'HELP SHAPE FINTALE',
           guide:'Help us make Fintale better, or sign up to hear when the full version launches. Both are optional.'};
       }
-      if(feedbackStep===3) {
-        const url=createFeedbackUrl(feedbackAnswers.liked,feedbackAnswers.improve,feedbackAnswers.next);
-        return {eyebrow:'YOUR FEEDBACK · OPTIONAL',title:'Thanks for<br><em>helping us grow.</em>',text:url?'You can review your feedback on GitHub before sending it, or continue without sending.':'No feedback this time? That’s fine. You can continue to the optional email step.',
-          content:(url && url.length<=7000?'<a class="primary feedback-review-link" href="'+url+'" target="_blank" rel="noopener noreferrer">Review feedback on GitHub <span aria-hidden="true">↗</span></a><p class="notice">A GitHub account is required. Feedback is public. Review the draft and submit it there to send it; opening it alone does not send anything.</p>':url?'<p class="notice">Your draft is too long for a GitHub link. Use Back to shorten it before sending.</p>':'')+'<div class="survey-navigation"><button class="secondary" data-action="survey-back">Back</button>'+button('Sign up for launch news','survey-email')+'</div>',
-          visual:feedbackReviewHtml(),label:'YOUR THOUGHTS, TOGETHER',guide:'Your feedback isn’t sent automatically. Email signup is a separate, optional next step.'};
-      }
-      if(feedbackStep===5) return {eyebrow:'DEMO COMPLETE',title:'Thanks for<br><em>playing Fintale.</em>',text:'You’ve taken your first step into business finance. Your takeaway is yours to revisit whenever you like.',cta:button('Revisit my takeaway','return-takeaway'),visual:takeaway(),label:'YOUR FIRST BUSINESS SNAPSHOT',guide:'You don’t need to share feedback or an email to finish the demo.'};
+      if(feedbackStep===4) return {eyebrow:'DEMO COMPLETE',title:'Thanks for<br><em>playing Fintale.</em>',text:'You’ve taken your first step into business finance. Your takeaway is yours to revisit whenever you like.',cta:button('Revisit my takeaway','return-takeaway'),visual:takeaway(),label:'YOUR FIRST BUSINESS SNAPSHOT',guide:'You don’t need to share feedback or an email to finish the demo.'};
       return {eyebrow:'LAUNCH UPDATES · OPTIONAL',title:'Be first to hear<br><em>what comes next.</em>',text:'Enjoyed the demo? Leave your email to hear when the full version of Fintale launches, with more stories and finance courses. Signing up is optional.',content:signupHtml(),visual:workshop+'<div class="floating-note">Your next chapter awaits.<strong>Keep learning with Fintale.</strong></div>',label:'THE BEGINNING OF YOUR FINANCE JOURNEY',guide:'Thanks for playing. Signing up is optional—you’ve already unlocked the full takeaway from this demo.'};
     }
     switch (memory.step) {
@@ -93,25 +87,12 @@
   function feedbackQuestionHtml(q) {
     return '<div class="survey-card" id="survey-question-'+q.key+'"><div class="survey-step"><span>QUESTION '+(feedbackStep+1)+' OF 3</span><span>Optional</span></div><div class="survey-dots" aria-hidden="true">'+feedbackQuestions.map((_,i)=>'<i class="'+(i<=feedbackStep?'done':'')+'"></i>').join('')+'</div><label for="feedback-answer">'+q.label+'</label><textarea id="feedback-answer" rows="5" maxlength="600" placeholder="'+q.placeholder+'">'+escapeText(feedbackAnswers[q.key])+'</textarea><p class="notice">Leave this blank if you’d rather skip this question. Your answers stay on this page until you choose to send them.</p></div>';
   }
-  function feedbackSliderControls() { return '<div class="survey-navigation">'+(feedbackStep?'<button class="secondary" data-action="survey-back">Back</button>':'')+button(feedbackStep===2?'Review feedback':'Next question','survey-next')+'</div><button class="text-button survey-skip" data-action="survey-skip">Skip feedback · Sign up for launch news</button>'; }
-  function feedbackReviewHtml() {
-    return '<div class="survey-review"><div class="eyebrow">YOUR FEEDBACK DRAFT</div>'+feedbackQuestions.map(q=>'<div class="survey-review-item"><b>'+q.label+'</b><p>'+escapeText(feedbackAnswers[q.key].trim()||'Skipped')+'</p></div>').join('')+'</div>';
-  }
-  function moveFeedback(step) { feedbackStep=Math.max(0,Math.min(5,step));render();document.querySelector('h1').focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'}); }
+  function feedbackSliderControls() { return '<div class="survey-navigation">'+(feedbackStep?'<button class="secondary" data-action="survey-back">Back</button>':'')+button(feedbackStep===2?'Continue to email':'Next question','survey-next')+'</div><button class="text-button survey-skip" data-action="survey-skip">Skip feedback · Sign up for launch news</button>'; }
+  function moveFeedback(step) { feedbackStep=Math.max(0,Math.min(4,step));render();document.querySelector('h1').focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'}); }
   function coachInstruction() {
     if(memory.step===1&&!memory.funded)return selected?{selector:'#bank-target .bank',text:'Now tap the business bank to place €1,000.'}:{selector:'.money',text:'Tap this €1,000 card to pick it up.'};
-    if(memory.step===3&&!memory.recorded)return {selector:'[data-action="record"]',text:'Tap here to record your contribution.'};
-    if(memory.step===4&&!memory.earned)return {selector:'.choices',highlight:'.choices .choice',text:'Your turn: tap the answer you think is right.'};
-    if(memory.step===6&&!memory.delivered)return {selector:'[data-action="deliver"]',text:'Tap here to accept Sam’s delivery.'};
-    if(memory.step===7&&!memory.machine)return activeCard?{selector:'[data-place="has"]',text:'Now tap here to place the machine.'}:{selector:'.object-card',text:'Tap this machine card to pick it up.'};
-    if(memory.step===8&&!memory.invoice)return activeCard?{selector:'[data-place="owes"]',text:'Now tap here to place the invoice.'}:{selector:'.object-card',text:'Tap this invoice card to pick it up.'};
-    if(memory.step===10&&!memory.cashCheck)return {selector:'.choices',highlight:'.choices .choice',text:'Tap the amount you think is in your bank.'};
-    if(memory.step===12&&!memory.equation){
-      if(!activeCard)return {selector:'.amount-tray',highlight:'.amount-tray .object-card',text:'Tap an amount card to pick it up.'};
-      const account=({1600:'assets',600:'liabilities',1000:'equity'})[activeCard];
-      return {selector:'[data-place="'+account+'"]',text:'Now tap '+account+' to place €'+Number(activeCard).toLocaleString('en-IE')+'.'};
-    }
-    if(memory.step===13&&!memory.practice)return {selector:'.choices',highlight:'.choices .choice',text:'Choose an answer. Tap the amount you think fits.'};
+    if(memory.step===7&&!memory.machine)return activeCard?{selector:'.sort-zones',highlight:'.drop-zone:not(:disabled)',destinations:true,text:'Choose where the machine belongs. Tap either outlined space.'}:{selector:'.object-card',text:'Tap this machine card to pick it up.'};
+    if(memory.step===8&&!memory.invoice)return activeCard?{selector:'.sort-zones',highlight:'.drop-zone:not(:disabled)',destinations:true,text:'Choose where the unpaid invoice belongs. Tap either outlined space.'}:{selector:'.object-card',text:'Tap this invoice card to pick it up.'};
     return null;
   }
   function interactionCoachHtml() {
@@ -134,11 +115,11 @@
     bubble.style.setProperty('--coach-arrow',Math.max(20,Math.min(size.width-20,rect.left+rect.width/2-left))+'px');
   }
   function syncCoach() {
+    document.querySelectorAll('.hint-target, .possible-target').forEach(node=>node.classList.remove('hint-target','possible-target'));
     const hint=coachInstruction(),target=hint?document.querySelector(hint.selector):null;
     if(!target?.getBoundingClientRect)return;
-    document.querySelectorAll('.hint-target').forEach(node=>node.classList.remove('hint-target'));
     const highlighted=hint.highlight?document.querySelectorAll(hint.highlight):[target];
-    highlighted.forEach(node=>node.classList.add('hint-target'));
+    highlighted.forEach(node=>node.classList.add(hint.destinations?'possible-target':'hint-target'));
     positionCoach();
   }
   function createFeedbackUrl(liked, improve, next) {
@@ -151,7 +132,9 @@
   function signupHtml() {
     if(!signup)return '';
     const waitlist=previewSubmitted?'<div class="feedback" role="status">That’s the signup preview. No email was stored or sent. We’ll connect a real waitlist before launch.</div>':'<form class="form" id="waitlist"><label for="email">Your email</label><input type="email" id="email" autocomplete="email" placeholder="you@example.com" required><label class="consent"><input type="checkbox" required> I’d like an email when the full Fintale product launches.</label><button class="primary" type="submit">Preview signup <span aria-hidden="true">→</span></button><p class="notice">Demo only. This form does not store or send your email. A live signup and privacy notice will be added before launch.</p></form>';
-    return waitlist+'<button class="text-button survey-skip" data-action="email-skip">Not now · Finish demo</button>';
+    const feedbackUrl=createFeedbackUrl(feedbackAnswers.liked,feedbackAnswers.improve,feedbackAnswers.next);
+    const feedbackSend=feedbackUrl && feedbackUrl.length<=7000?'<div class="feedback-send-option"><a href="'+feedbackUrl+'" target="_blank" rel="noopener noreferrer">Send my feedback on GitHub ↗</a><p class="notice">Feedback needs a GitHub account and is public. Open the draft and submit it there to send it. Email signup is separate.</p></div>':'';
+    return waitlist+'<button class="text-button survey-skip" data-action="email-skip">Not now · Finish demo</button>'+feedbackSend;
   }
   // Keep unchanged DOM nodes, images, focus and animations in place.
   function patchNode(current, next) {
@@ -186,7 +169,7 @@
   }
   function render() {
     const v = view();
-    const markup = `<header class="topbar"><div class="brand"><span class="brand-mark" aria-hidden="true">f</span>fintale<span style="color:#7b936c">.</span></div><div class="top-actions"><span class="top-note">A little learning. A lot of possibility.</span><span class="xp" aria-label="${xp()} experience points">✦ &nbsp; ${xp()} XP</span><button class="icon-button" data-action="restart" aria-label="Restart lesson">↺</button></div></header><main class="shell"><div class="breadcrumb"><span>ACCOUNTING FOUNDATIONS</span><span>${memory.step === 15 ? (signup ? 'DEMO COMPLETE' : 'CHAPTER 02 · YOUR FIRST CUSTOMER') : 'CHAPTER 01 · THE ACCOUNTING EQUATION'}</span></div><div class="mobile-step"><span>${memory.step === 15 ? (signup ? (feedbackStep < 4 ? 'Help improve Fintale' : feedbackStep === 4 ? 'Launch updates' : 'Demo complete') : 'Your next chapter') : 'Your first day'}</span><span>${memory.step === 15 ? (signup ? (feedbackStep < 3 ? `${feedbackStep+1} / 3` : 'Optional') : 'Preview') : `${Math.min(memory.step+1,15)} / 15`}</span></div><div class="progress" aria-label="Lesson progress: step ${Math.min(memory.step+1,15)} of 15">${Array.from({length:15},(_,i)=>`<i class="${i <= memory.step ? 'done' : ''}"></i>`).join('')}</div><div class="lesson"><section class="lesson-copy"><div class="eyebrow">${v.eyebrow}</div><h1 tabindex="-1">${v.title}</h1><p class="lead">${v.text}</p><div class="lesson-response">${v.content || ''}${v.cta ? `<div class="lesson-actions">${v.cta}</div>` : ''}${v.foot ? `<p class="under-button">${v.foot}</p>` : ''}</div></section><section class="stage" data-placement-active="${Boolean(selected||activeCard)}" aria-label="Interactive lesson scene"><div class="stage-label"><span class="dot"></span>${v.label}</div>${v.visual}</section></div><aside class="guide-bar"><div class="avatar" aria-hidden="true">👨🏻‍🔧</div><p><b>LEO</b>${v.guide}</p><button class="text-button" data-action="guide">${memory.step === 0 ? 'Meet your guide' : 'Why? Ask Leo'}</button></aside><footer class="bottom"><button data-action="back" ${memory.step === 0 ? 'disabled' : ''}>← Back</button><span>${storageAvailable ? 'Progress saved on this device' : 'Progress kept for this session'}</span></footer></main>${interactionCoachHtml()}`;
+    const markup = `<header class="topbar"><div class="brand"><span class="brand-mark" aria-hidden="true">f</span>fintale<span style="color:#7b936c">.</span></div><div class="top-actions"><span class="top-note">A little learning. A lot of possibility.</span><span class="xp" aria-label="${xp()} experience points">✦ &nbsp; ${xp()} XP</span><button class="icon-button" data-action="restart" aria-label="Restart lesson">↺</button></div></header><main class="shell"><div class="breadcrumb"><span>ACCOUNTING FOUNDATIONS</span><span>${memory.step === 15 ? (signup ? 'DEMO COMPLETE' : 'CHAPTER 02 · YOUR FIRST CUSTOMER') : 'CHAPTER 01 · THE ACCOUNTING EQUATION'}</span></div><div class="mobile-step"><span>${memory.step === 15 ? (signup ? (feedbackStep < 3 ? 'Help improve Fintale' : feedbackStep === 3 ? 'Launch updates' : 'Demo complete') : 'Your next chapter') : 'Your first day'}</span><span>${memory.step === 15 ? (signup ? (feedbackStep < 3 ? `${feedbackStep+1} / 3` : 'Optional') : 'Preview') : `${Math.min(memory.step+1,15)} / 15`}</span></div><div class="progress" aria-label="Lesson progress: step ${Math.min(memory.step+1,15)} of 15">${Array.from({length:15},(_,i)=>`<i class="${i <= memory.step ? 'done' : ''}"></i>`).join('')}</div><div class="lesson"><section class="lesson-copy"><div class="eyebrow">${v.eyebrow}</div><h1 tabindex="-1">${v.title}</h1><p class="lead">${v.text}</p><div class="lesson-response">${v.content || ''}${v.cta ? `<div class="lesson-actions">${v.cta}</div>` : ''}${v.foot ? `<p class="under-button">${v.foot}</p>` : ''}</div></section><section class="stage" data-placement-active="${Boolean(selected||activeCard)}" aria-label="Interactive lesson scene"><div class="stage-label"><span class="dot"></span>${v.label}</div>${v.visual}</section></div><aside class="guide-bar"><div class="avatar" aria-hidden="true">👨🏻‍🔧</div><p><b>LEO</b>${v.guide}</p><button class="text-button" data-action="guide">${memory.step === 0 ? 'Meet your guide' : 'Why? Ask Leo'}</button></aside><footer class="bottom"><button data-action="back" ${memory.step === 0 ? 'disabled' : ''}>← Back</button><span>${storageAvailable ? 'Progress saved on this device' : 'Progress kept for this session'}</span></footer></main>${interactionCoachHtml()}`;
     patchMarkup(root, markup);
     bindTransfer();
     document.querySelectorAll('[data-card]').forEach(card=>{card.ondragstart=e=>{e.dataTransfer.setData('text/plain',card.dataset.card);e.dataTransfer.effectAllowed='move';};});
@@ -224,8 +207,8 @@
     const action=e.target.closest('[data-action]')?.dataset.action; if (!action) return;
     if(action==='survey-next'){moveFeedback(feedbackStep+1);return;}
     if(action==='survey-back'){moveFeedback(feedbackStep-1);return;}
-    if(action==='survey-skip'||action==='survey-email'){moveFeedback(4);return;}
-    if(action==='email-skip'){moveFeedback(5);return;}
+    if(action==='survey-skip'||action==='survey-email'){moveFeedback(3);return;}
+    if(action==='email-skip'){moveFeedback(4);return;}
     if(action==='return-takeaway'){signup=false;memory.step=14;save();render();document.querySelector('h1').focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});return;}
     if(action==='back'&&memory.step===15&&signup){if(feedbackStep>0)moveFeedback(feedbackStep-1);else{signup=false;render();}return;}
 
