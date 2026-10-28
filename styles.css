@@ -200,3 +200,5 @@
 .privacy-page p,.privacy-page li { line-height: 1.8; color: #58695e; }
 .privacy-page a { color: var(--green); text-underline-offset: 3px; }
 .privacy-page .privacy-intro { background: #e7eadb; border: 1px solid #d9ddcc; border-radius: 16px; padding: 18px 22px; }
+
+.feedback-entry { width:100%; max-width:390px; margin-top:12px; min-height:48px; font-size:13px; }
