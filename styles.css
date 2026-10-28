@@ -156,3 +156,5 @@
 @keyframes art-spin { to { transform: rotate(360deg); } }
 @media(max-width:800px) { .stage .workshop-visual { width: 100%; max-width: 360px; margin: 20px auto 0; }.stage .workshop-visual .workshop-art { width: 100%; max-width: none; height: 100%; margin: 0; } }
 @media(prefers-reduced-motion:reduce) { .art-spinner { animation: none; }.workshop-visual .workshop-art { transition: none; } }
+
+.chapter-development { margin: 24px 0 0; padding: 20px 22px; border: 1px solid #d7dece; border-radius: 16px; background: #ecefe4; color: #586b5e; font-size: 14px; line-height: 1.65; }.chapter-development strong { color: #2b5e49; }.chapter-development p { margin: 10px 0 0; }
