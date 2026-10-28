@@ -2,24 +2,26 @@
 
 Play: https://simovicm26.github.io/fintale/
 
-Learn finance through an interactive workshop story, starting with assets, liabilities, equity and the accounting equation.
+An interactive accounting lesson about assets, liabilities, equity and the accounting equation. Hosted on GitHub Pages from main / repository root; no build step.
 
-## Hosting
+## Final-page flow
 
-GitHub Pages serves the main branch from the repository root. No build step or server is required. Keep the HTML, JavaScript, CSS and responsive WebP artwork together.
+The ending offers email signup for free access to the full app when it launches, with feedback without signup as the secondary action. Brevo validates and saves signup, sends the existing confirmation email, then returns to signup-thanks.html. That page forwards to optional feedback questions. A visitor may skip every question and finish; signup is already saved.
 
-## Feedback and launch list
+## Independent feedback
 
-The four optional questions lead to a real Brevo signup form. Submitting an email and launch-update consent sends that email and any answers together to the private list **Fintale demo and launch updates**. Questions are limited to 500 characters to match Brevo. Skipping email does not submit the answers. Feedback no longer opens public GitHub issues.
+Four optional answers are submitted to the Supabase demo_feedback table, without an email address. Only pressing Send feedback sends answers. Drafts remain in session storage for reload/retry; failed requests never show success. A per-payload UUID prevents duplicate responses if an accepted request is retried after a lost connection. Responses are limited to 500 characters per question and empty submissions are not sent.
 
-Brevo stores the answers as FINTALE_LIKED, FINTALE_IMPROVE, FINTALE_FINANCE and FINTALE_ACCOUNTING contact attributes. An address has one contact record; a later submission can update its answers. See CRM → Contacts → Lists in Brevo, open the Fintale list, then open a contact to read its answers.
+The browser uses a public publishable key. Row-level security is enabled; anonymous visitors have INSERT privileges for only the request ID and four answer columns. They have no SELECT, UPDATE, DELETE or TRUNCATE access, and cannot set timestamps. Read responses privately in the Supabase project Table Editor > demo_feedback. No secret or service-role key is used in this website.
 
-Submissions use Brevo’s public form endpoint, not a secret API key. The browser posts directly to Brevo for validation and saving, then returns to signup-thanks.html after success. The app does not display a fake success message before the provider responds. A temporary draft is kept in session storage during submission so a failed request can be retried using the browser Back button; it is removed on the success page. No email address is added to URLs or lesson progress storage.
+## Email signup
 
-## Confirmation emails
+Brevo stores email and explicit launch-update consent, separately from feedback. The existing Fintale signup form, list and confirmation template #5 remain active. The page only advances after Brevo's successful native form submission. The email address is never included in a page URL or sent to Supabase. Earlier feedback stored as Brevo contact attributes remains available there.
 
-Automatic simple confirmation emails are enabled. The form uses the active template **Fintale — Signup confirmation** (#5), with sender name **Fintale** and subject **You’re on the Fintale list!**. The message confirms signup, explains that more courses are in development, links back to the demo, and includes an unsubscribe link. The thank-you redirect remains signup-thanks.html. Brevo’s delivery log confirmed a test email was delivered to the owner. The sender currently uses Brevo’s sending domain because a custom sending domain is not authenticated.
+## Privacy and mobile
+
+privacy.html identifies the project owner, contact address, providers, stored data and deletion choices. Signup fields appear above supporting artwork on phones. Textarea text is 16px and Next and Back actions are stacked. favicon.svg supplies the Fintale tab icon.
 
 ## Verification
 
-The chapter event harness, DOM preservation and artwork loader checks pass. Payload checks cover all four feedback fields, required consent, safe escaping and 500-character limits. Clearly marked setup submissions using the owner’s address were accepted through both Brevo’s hosted form and the live Fintale app, returned to the thank-you page, and all four values—including punctuation and angle brackets—were verified in the contact record. No learner email was used for testing.
+Chapter progression, DOM preservation, image loading and mocked submission checks cover the main journey. Database grants and anonymous insertion were checked in a rolled-back SQL transaction. Final live submission verification is recorded in the owner setup guide.
