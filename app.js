@@ -5,12 +5,16 @@
   let memory = fresh();
   let storageAvailable = true;
   try { const saved = JSON.parse(localStorage.getItem(key)); if (saved && Number.isInteger(saved.step) && saved.step >= 0 && saved.step <= 15) for (const k of Object.keys(memory)) { if (typeof saved[k] === typeof memory[k]) memory[k] = saved[k]; } } catch { storageAvailable = false; }
-  let selected = false, feedback = '', error = false, signup = false, previewSubmitted = false;
+  let selected = false, feedback = '', error = false, signup = false;
   let activeCard = '', equationSlots = {}, lastFeedback = ''; 
   const root = document.querySelector('#app');
   let feedbackStep = 0;
   let workshopStatus = 'loading', workshopRetry = 0;
   const feedbackAnswers = { liked: '', improve: '', next: '', accounting: '' };
+  const signupEndpoint = "https://8f7239dd.sibforms.com/serve/MUIFAEZPeoasbx3zdwJBhHbqUCK8nm3TdGlQxpqs0eeofTFy5Ff8nqGRQRAq3GRvaLjEfRYnKb9wmqcCAi-0teEPSmfsrvVjqhgXDuRufoB2r95Eupu0g9Lx67hOflY0IAw9VrYMAnSMkVydwUpm2seni2Qo--X2F1QJ7GAnL0LKOqPCxzOFayEfG5YGtOj5jNQp1O7Urdln4Q0Lfg==";
+  const submissionDraftKey = 'fintale.submissionDraft.v1';
+  let restoredEmail = '';
+  try { const draft=JSON.parse(sessionStorage.getItem(submissionDraftKey)); if(memory.step===15 && draft){for(const name of Object.keys(feedbackAnswers))feedbackAnswers[name]=String(draft.answers?.[name]||'').slice(0,500);restoredEmail=String(draft.email||'').slice(0,254);signup=true;feedbackStep=4;} } catch {}
   const feedbackQuestions = [
     {key:'liked', title:'What did you<br><em>like?</em>', label:'What did you like?', help:'Was there a moment, interaction or explanation you enjoyed?', placeholder:'Tell us what worked for you…'},
     {key:'improve', title:'What could<br><em>be better?</em>', label:'What didn’t work for you?', help:'Anything confusing, frustrating or missing? We’d love to know.', placeholder:'Tell us what didn’t work…'},
@@ -100,7 +104,7 @@
   function confetti() { return '<div class="burst" aria-hidden="true">' + Array.from({length:18}, (_,i) => `<i style="--x:${(i*37)%100}%;--c:${['#c7b2de','#e3b78a','#87a971'][i%3]};--d:${(i%5)*.12}s"></i>`).join('') + '</div>'; }
   function escapeText(value) { return String(value).replace(/[&<>"']/g,character=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[character])); }
   function feedbackQuestionHtml(q) {
-    return '<div class="survey-card" id="survey-question-'+q.key+'"><div class="survey-step"><span>QUESTION '+(feedbackStep+1)+' OF '+feedbackQuestions.length+'</span><span>Optional</span></div><div class="survey-dots" aria-hidden="true">'+feedbackQuestions.map((_,i)=>'<i class="'+(i<=feedbackStep?'done':'')+'"></i>').join('')+'</div><label for="feedback-answer">'+q.label+'</label><textarea id="feedback-answer" rows="5" maxlength="600" placeholder="'+q.placeholder+'">'+escapeText(feedbackAnswers[q.key])+'</textarea><p class="notice">Leave this blank if you’d rather skip this question. Your answers stay on this page until you choose to send them.</p></div>';
+    return '<div class="survey-card" id="survey-question-'+q.key+'"><div class="survey-step"><span>QUESTION '+(feedbackStep+1)+' OF '+feedbackQuestions.length+'</span><span>Optional</span></div><div class="survey-dots" aria-hidden="true">'+feedbackQuestions.map((_,i)=>'<i class="'+(i<=feedbackStep?'done':'')+'"></i>').join('')+'</div><label for="feedback-answer">'+q.label+'</label><textarea id="feedback-answer" rows="5" maxlength="500" placeholder="'+q.placeholder+'">'+escapeText(feedbackAnswers[q.key])+'</textarea><p class="notice">Leave this blank if you’d rather skip this question. Your answers stay on this page until you choose to send them.</p></div>';
   }
   function feedbackSliderControls() { return '<div class="survey-navigation">'+button(feedbackStep===feedbackQuestions.length-1?'Continue to email':'Next question','survey-next')+(feedbackStep?'<button class="secondary" data-action="survey-back">Back</button>':'')+'</div><button class="text-button survey-skip" data-action="survey-skip">Skip feedback · Sign up for launch news</button>'; }
   function moveFeedback(step) { feedbackStep=Math.max(0,Math.min(feedbackQuestions.length+1,step));render();document.querySelector('h1').focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'}); }
@@ -137,19 +141,12 @@
     highlighted.forEach(node=>node.classList.add(hint.destinations?'possible-target':'hint-target'));
     positionCoach();
   }
-  function createFeedbackUrl(liked, improve, next, accounting = '') {
-    const answers=[liked,improve,next,accounting].map(value=>value.trim());
-    if(!answers.some(Boolean)) return null;
-    const headings=['What I liked','What could be improved','Finance and economics topics I would like','Financial accounting chapters I would like'];
-    const body='Fintale demo feedback\n\n'+answers.map((answer,i)=>'### '+headings[i]+'\n'+(answer||'Not answered')).join('\n\n');
-    return 'https://github.com/simovicm26/fintale/issues/new?title='+encodeURIComponent('Demo feedback')+'&body='+encodeURIComponent(body);
-  }
   function signupHtml() {
     if(!signup)return '';
-    const waitlist=previewSubmitted?'<div class="feedback" role="status">That’s the signup preview. No email was stored or sent. We’ll connect a real waitlist before launch.</div>':'<form class="form" id="waitlist"><label for="email">Your email</label><input type="email" id="email" autocomplete="email" placeholder="you@example.com" required><label class="consent"><input type="checkbox" required> I’d like an email when the full Fintale product launches.</label><button class="primary" type="submit">Preview signup <span aria-hidden="true">→</span></button><p class="notice">Demo only. This form does not store or send your email. A live signup and privacy notice will be added before launch.</p></form>';
-    const feedbackUrl=createFeedbackUrl(feedbackAnswers.liked,feedbackAnswers.improve,feedbackAnswers.next,feedbackAnswers.accounting);
-    const feedbackSend=feedbackUrl && feedbackUrl.length<=7000?'<div class="feedback-send-option"><a href="'+feedbackUrl+'" target="_blank" rel="noopener noreferrer">Send my feedback on GitHub ↗</a><p class="notice">Feedback needs a GitHub account and is public. Open the draft and submit it there to send it. Email signup is separate.</p></div>':'';
-    return waitlist+'<button class="text-button survey-skip" data-action="email-skip">Not now · Finish demo</button>'+feedbackSend;
+    const hasAnswers=Object.values(feedbackAnswers).some(answer=>answer.trim());
+    const fields={FINTALE_LIKED:feedbackAnswers.liked,FINTALE_IMPROVE:feedbackAnswers.improve,FINTALE_FINANCE:feedbackAnswers.next,FINTALE_ACCOUNTING:feedbackAnswers.accounting};
+    const hidden=Object.entries(fields).map(([name,value])=>'<input type="hidden" name="'+name+'" value="'+escapeText(value.slice(0,500))+'">').join('');
+    return '<form class="form" id="waitlist" method="POST" action="'+signupEndpoint+'"><label for="email">Your email</label><input type="email" id="email" name="EMAIL" maxlength="254" autocomplete="email" placeholder="you@example.com" value="'+escapeText(restoredEmail)+'" required>'+hidden+'<label class="consent"><input type="checkbox" id="launch-consent" name="OPT_IN" value="1" required> I’d like an email when the full Fintale app launches.</label><input type="text" name="email_address_check" value="" class="signup-honeypot" tabindex="-1" autocomplete="off" aria-hidden="true"><input type="hidden" name="locale" value="en"><input type="hidden" name="html_type" value="simple"><button class="primary" type="submit">'+(hasAnswers?'Sign up and send feedback':'Sign up for launch updates')+' <span aria-hidden="true">→</span></button><p class="notice">Your email and any feedback you shared will be saved together privately through Brevo. We’ll use your email for Fintale launch updates. You can unsubscribe from those emails at any time. <a href="https://www.brevo.com/legal/privacypolicy/" target="_blank" rel="noopener noreferrer">About Brevo’s data handling</a>.</p></form><button class="text-button survey-skip" data-action="email-skip">Not now · Finish demo</button>';
   }
   // Keep unchanged DOM nodes, images, focus and animations in place.
   function patchNode(current, next) {
@@ -195,7 +192,15 @@
       zone.ondrop=e=>{e.preventDefault();if(!zone.disabled)placeCard(zone.dataset.place,e.dataTransfer.getData('text/plain'));};
     });
     const form = document.querySelector('#waitlist');
-    if (form) form.onsubmit=e=>{e.preventDefault();previewSubmitted=true;render();};
+    if (form) form.onsubmit=e=>{
+      if(form.checkValidity && !form.checkValidity()){e.preventDefault();form.reportValidity();return;}
+      const submit=document.querySelector('#waitlist button[type="submit"]');
+      if(submit?.disabled){e.preventDefault();return;}
+      restoredEmail=document.querySelector('#email').value.trim();
+      try{sessionStorage.setItem(submissionDraftKey,JSON.stringify({email:restoredEmail,answers:feedbackAnswers}));}catch{}
+      if(submit){submit.disabled=true;submit.textContent='Sending…';}
+      // Native form submission lets Brevo validate, save and redirect; never fake success.
+    };
     const answer=document.querySelector('#feedback-answer');
     if(answer && signup && feedbackStep<feedbackQuestions.length) {
       answer.value=feedbackAnswers[feedbackQuestions[feedbackStep].key];
@@ -205,6 +210,7 @@
     lastFeedback = feedback;
     if(window.requestAnimationFrame)window.requestAnimationFrame(syncCoach);
   }
+  window.addEventListener?.('pageshow',()=>{const submit=document.querySelector('#waitlist button[type="submit"]');if(submit){submit.disabled=false;submit.textContent=Object.values(feedbackAnswers).some(answer=>answer.trim())?'Sign up and send feedback':'Sign up for launch updates';}});
   function advance() { memory.step = Math.min(15, memory.step+1); feedback=''; error=false; selected=false; activeCard=''; save(); render(); document.querySelector('h1').focus({preventScroll:true}); window.scrollTo({top:0,behavior:'instant'}); }
   function fund() { if (memory.funded) return; memory.funded=true; selected=false; feedback='€1,000 received. Your workshop now has its starting money. +10 XP'; error=false; save(); render(); }
   function bindTransfer() {
@@ -247,7 +253,7 @@
   });
   document.querySelectorAll('#guide .close, #guide .close-guide').forEach(b=>b.addEventListener('click',()=>document.querySelector('#guide').close()));
   document.querySelector('#restart .cancel').addEventListener('click',()=>document.querySelector('#restart').close());
-  document.querySelector('#restart .reset').addEventListener('click',()=>{memory=fresh();feedbackStep=0;for(const name of Object.keys(feedbackAnswers))feedbackAnswers[name]='';selected=false;activeCard='';equationSlots={};feedback='';error=false;signup=false;previewSubmitted=false;save();document.querySelector('#restart').close();render();});
+  document.querySelector('#restart .reset').addEventListener('click',()=>{memory=fresh();feedbackStep=0;for(const name of Object.keys(feedbackAnswers))feedbackAnswers[name]='';selected=false;activeCard='';equationSlots={};feedback='';error=false;signup=false;restoredEmail='';try{sessionStorage.removeItem(submissionDraftKey);}catch{}save();document.querySelector('#restart').close();render();});
   document.querySelectorAll('[data-unlock-close]').forEach(button=>button.addEventListener('click',()=>{document.querySelector('#chapter-unlock').close();document.querySelector('h1').focus({preventScroll:true});}));
   window.addEventListener?.('scroll',positionCoach,{passive:true,capture:true});
   window.addEventListener?.('resize',positionCoach,{passive:true});
