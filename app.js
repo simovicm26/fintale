@@ -10,11 +10,12 @@
   const root = document.querySelector('#app');
   let feedbackStep = 0;
   let workshopStatus = 'loading', workshopRetry = 0;
-  const feedbackAnswers = { liked: '', improve: '', next: '' };
+  const feedbackAnswers = { liked: '', improve: '', next: '', accounting: '' };
   const feedbackQuestions = [
     {key:'liked', title:'What did you<br><em>like?</em>', label:'What did you like?', help:'Was there a moment, interaction or explanation you enjoyed?', placeholder:'Tell us what worked for you…'},
     {key:'improve', title:'What could<br><em>be better?</em>', label:'What didn’t work for you?', help:'Anything confusing, frustrating or missing? We’d love to know.', placeholder:'Tell us what didn’t work…'},
-    {key:'next', title:'What would you<br><em>like next?</em>', label:'What would you like to see next?', help:'A finance topic, feature or different way to learn—what would bring you back?', placeholder:'Tell us what you’d like to explore…'}
+    {key:'next', title:'Where should we<br><em>explore next?</em>', label:'What finance or economics topics would you like to learn?', help:'Think beyond accounting: personal finance, investing, how businesses are valued, inflation or how the economy works. What interests you?', placeholder:'I’d love a course about…'},
+    {key:'accounting', title:'What’s next<br><em>in accounting?</em>', label:'Which financial accounting chapters would you like next?', help:'For example: revenue and expenses, debits and credits, financial statements, cash flow, inventory or depreciation. What would help you most?', placeholder:'I’d like to understand…'}
   ];
   const tips = [
     'You are the owner of this fictional workshop. All amounts are imaginary. We leave taxes and other complications for later chapters.',
@@ -54,13 +55,13 @@
   function button(label = 'Continue', action = 'next', disabled = false) { return `<button class="primary" data-action="${action}" ${disabled ? 'disabled' : ''}>${label}<span aria-hidden="true">→</span></button>`; }
   function view() {
     if(memory.step===15 && signup) {
-      if(feedbackStep<3) {
+      if(feedbackStep<feedbackQuestions.length) {
         const q=feedbackQuestions[feedbackStep];
-        return {eyebrow:'HELP IMPROVE FINTALE · '+(feedbackStep+1)+' OF 3',title:q.title,text:feedbackStep===0?'Please help improve Fintale by sharing what you liked. Or skip to sign up for news when the full version launches. Both are optional.':q.help,
+        return {eyebrow:'HELP IMPROVE FINTALE · '+(feedbackStep+1)+' OF '+feedbackQuestions.length,title:q.title,text:q.help,
           content:feedbackSliderControls(),visual:feedbackQuestionHtml(q),label:'HELP SHAPE FINTALE',
           guide:'Help us make Fintale better, or sign up to hear when the full version launches. Both are optional.'};
       }
-      if(feedbackStep===4) return {eyebrow:'DEMO COMPLETE',title:'Thanks for<br><em>playing Fintale.</em>',text:'You’ve taken your first step into business finance. Your takeaway is yours to revisit whenever you like.',cta:button('Revisit my takeaway','return-takeaway'),visual:takeaway(),label:'YOUR FIRST BUSINESS SNAPSHOT',guide:'You don’t need to share feedback or an email to finish the demo.'};
+      if(feedbackStep===feedbackQuestions.length+1) return {eyebrow:'DEMO COMPLETE',title:'Thanks for<br><em>playing Fintale.</em>',text:'You’ve taken your first step into business finance. Your takeaway is yours to revisit whenever you like.',cta:button('Revisit my takeaway','return-takeaway'),visual:takeaway(),label:'YOUR FIRST BUSINESS SNAPSHOT',guide:'You don’t need to share feedback or an email to finish the demo.'};
       return {eyebrow:'LAUNCH UPDATES · OPTIONAL',title:'Be first to hear<br><em>what comes next.</em>',text:'Enjoyed the demo? Leave your email to hear when the full version of Fintale launches, with more stories and finance courses. Signing up is optional.',content:signupHtml(),visual:workshopHtml()+'<div class="floating-note">Your next chapter awaits.<strong>Keep learning with Fintale.</strong></div>',label:'THE BEGINNING OF YOUR FINANCE JOURNEY',guide:'Thanks for playing. Signing up is optional—you’ve already unlocked the full takeaway from this demo.'};
     }
     switch (memory.step) {
@@ -79,7 +80,7 @@
       case 12: return { eyebrow: '11 / THE ACCOUNTING EQUATION', title: 'Two sides.<br><em>One business.</em>', text: 'Assets equal liabilities plus equity. Place your workshop’s amounts to connect what it has with how it is funded.', content: feedbackHtml(), cta: memory.equation ? button('Try it without guidance') : '', visual: equationBoard(), label: 'BUILD YOUR BUSINESS SNAPSHOT', guide: 'Your resources total €1,600. Sam has a €600 claim, and your equity is €1,000.' };
       case 13: return { eyebrow: 'PRACTICE / A DIFFERENT BUSINESS', title: 'What belongs<br><em>to the owner?</em>', text: 'A separate workshop has €1,400 in assets and owes €500. Choose the amount of its owner’s equity.', content: `<div class="tag practice-tag">Practice · Atlas balances stay unchanged</div><div class="choices">${[1400,900,1900].map(n=>`<button class="choice" data-action="practice-${n}">€${n.toLocaleString('en-IE')}</button>`).join('')}</div>${feedbackHtml()}`, cta: memory.practice ? button('See what I’ve learned', 'complete') : '', visual: '<div class="receipt"><div class="eyebrow">PRACTICE EXAMPLE</div><h3>A separate workshop</h3><div class="row"><span>Resources · assets</span><b>€1,400</b></div><div class="row"><span>Obligations · liabilities</span><b>€500</b></div><div class="total">Equity: ?</div></div>', label: 'YOUR TURN · A NEW EXAMPLE', guide: 'This example is separate from your story. Choose the amount you think fits.' };
       case 14: return { eyebrow: 'CHAPTER COMPLETE / YOUR TAKEAWAY', title: 'You can see<br><em>the whole picture.</em>', text: 'Everything your business has is funded by creditors or the owner. Assets = liabilities + equity connects those two sides.', content: `<div class="tag">✦ &nbsp; ${xp()} XP earned &nbsp; · &nbsp; Foundation unlocked</div>`, cta: button('Meet my first customer'), visual: takeaway() + confetti(), label: 'YOUR ATLAS REPAIRS SNAPSHOT', guide: 'Cash is €1,000. Assets are €1,600. Equity is €1,000. You haven’t earned any revenue yet.' };
-      default: return { eyebrow: 'UP NEXT / YOUR FIRST CUSTOMER', title: 'Ready to earn<br><em>your first repair fee?</em>', text: 'Tomorrow, your first customer brings in a broken drill. What will earning a repair fee change in your business?', content: signupHtml(), cta: signup ? '' : button('Continue', 'signup'), foot: 'Chapter two preview', visual: '<div class="email-card"><div class="from">↗ &nbsp; ALEX · YOUR FIRST CUSTOMER</div><h3>Can you fix my drill?</h3><p>Sam said you’re open! My drill stopped working. Can I bring it in tomorrow?</p><p>I can pay as soon as it’s repaired.</p><div class="signature">Alex</div></div>', label: 'YOUR STORY IS JUST GETTING STARTED', guide: 'Next: revenue, profit and what earning money changes. Your answers from this chapter stay unlocked.' };
+      default: return { eyebrow: 'UP NEXT / YOUR FIRST CUSTOMER', title: 'Ready to earn<br><em>your first repair fee?</em>', text: 'Tomorrow, your first customer brings in a broken drill. What will earning a repair fee change in your business?', content: '<div class="chapter-development"><strong>The next chapter is still being built.</strong><p>This is the end of the playable demo. Chapter 2 will be available as we develop the full app.</p><p>For now, help shape what comes next with a few optional questions, or sign up for news when the full app is ready.</p></div>', cta: button('Help shape Fintale', 'signup')+'<button class="text-button survey-skip" data-action="launch-updates">Go straight to email signup</button>', foot: 'Feedback and signup are both optional.', visual: '<div class="email-card"><div class="from">↗ &nbsp; ALEX · YOUR FIRST CUSTOMER</div><h3>Can you fix my drill?</h3><p>Sam said you’re open! My drill stopped working. Can I bring it in tomorrow?</p><p>I can pay as soon as it’s repaired.</p><div class="signature">Alex</div></div>', label: 'YOUR STORY IS JUST GETTING STARTED', guide: 'This is a preview of Chapter 2, not a playable chapter yet. Your feedback can help decide what we build next.' };
     }
   }
   function movable(id, label) { return `<button class="object-card ${activeCard===id?'selected':''}" draggable="true" data-card="${id}" aria-pressed="${activeCard===id}">${label}<span aria-hidden="true">⠿</span></button>`; }
@@ -99,10 +100,10 @@
   function confetti() { return '<div class="burst" aria-hidden="true">' + Array.from({length:18}, (_,i) => `<i style="--x:${(i*37)%100}%;--c:${['#c7b2de','#e3b78a','#87a971'][i%3]};--d:${(i%5)*.12}s"></i>`).join('') + '</div>'; }
   function escapeText(value) { return String(value).replace(/[&<>"']/g,character=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[character])); }
   function feedbackQuestionHtml(q) {
-    return '<div class="survey-card" id="survey-question-'+q.key+'"><div class="survey-step"><span>QUESTION '+(feedbackStep+1)+' OF 3</span><span>Optional</span></div><div class="survey-dots" aria-hidden="true">'+feedbackQuestions.map((_,i)=>'<i class="'+(i<=feedbackStep?'done':'')+'"></i>').join('')+'</div><label for="feedback-answer">'+q.label+'</label><textarea id="feedback-answer" rows="5" maxlength="600" placeholder="'+q.placeholder+'">'+escapeText(feedbackAnswers[q.key])+'</textarea><p class="notice">Leave this blank if you’d rather skip this question. Your answers stay on this page until you choose to send them.</p></div>';
+    return '<div class="survey-card" id="survey-question-'+q.key+'"><div class="survey-step"><span>QUESTION '+(feedbackStep+1)+' OF '+feedbackQuestions.length+'</span><span>Optional</span></div><div class="survey-dots" aria-hidden="true">'+feedbackQuestions.map((_,i)=>'<i class="'+(i<=feedbackStep?'done':'')+'"></i>').join('')+'</div><label for="feedback-answer">'+q.label+'</label><textarea id="feedback-answer" rows="5" maxlength="600" placeholder="'+q.placeholder+'">'+escapeText(feedbackAnswers[q.key])+'</textarea><p class="notice">Leave this blank if you’d rather skip this question. Your answers stay on this page until you choose to send them.</p></div>';
   }
-  function feedbackSliderControls() { return '<div class="survey-navigation">'+(feedbackStep?'<button class="secondary" data-action="survey-back">Back</button>':'')+button(feedbackStep===2?'Continue to email':'Next question','survey-next')+'</div><button class="text-button survey-skip" data-action="survey-skip">Skip feedback · Sign up for launch news</button>'; }
-  function moveFeedback(step) { feedbackStep=Math.max(0,Math.min(4,step));render();document.querySelector('h1').focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'}); }
+  function feedbackSliderControls() { return '<div class="survey-navigation">'+(feedbackStep?'<button class="secondary" data-action="survey-back">Back</button>':'')+button(feedbackStep===feedbackQuestions.length-1?'Continue to email':'Next question','survey-next')+'</div><button class="text-button survey-skip" data-action="survey-skip">Skip feedback · Sign up for launch news</button>'; }
+  function moveFeedback(step) { feedbackStep=Math.max(0,Math.min(feedbackQuestions.length+1,step));render();document.querySelector('h1').focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'}); }
   function coachInstruction() {
     if(memory.step===1&&!memory.funded)return selected?{selector:'#bank-target .bank',text:'Now tap the business bank to place €1,000.'}:{selector:'.money',text:'Tap this €1,000 card to pick it up.'};
     if(memory.step===7&&!memory.machine)return activeCard?{selector:'.sort-zones',highlight:'.drop-zone:not(:disabled)',destinations:true,text:'Choose where the machine belongs. Tap either outlined space.'}:{selector:'.object-card',text:'Tap this machine card to pick it up.'};
@@ -136,17 +137,17 @@
     highlighted.forEach(node=>node.classList.add(hint.destinations?'possible-target':'hint-target'));
     positionCoach();
   }
-  function createFeedbackUrl(liked, improve, next) {
-    const answers=[liked,improve,next].map(value=>value.trim());
+  function createFeedbackUrl(liked, improve, next, accounting = '') {
+    const answers=[liked,improve,next,accounting].map(value=>value.trim());
     if(!answers.some(Boolean)) return null;
-    const headings=['What I liked','What could be improved','What I would like next'];
+    const headings=['What I liked','What could be improved','Finance and economics topics I would like','Financial accounting chapters I would like'];
     const body='Fintale demo feedback\n\n'+answers.map((answer,i)=>'### '+headings[i]+'\n'+(answer||'Not answered')).join('\n\n');
     return 'https://github.com/simovicm26/fintale/issues/new?title='+encodeURIComponent('Demo feedback')+'&body='+encodeURIComponent(body);
   }
   function signupHtml() {
     if(!signup)return '';
     const waitlist=previewSubmitted?'<div class="feedback" role="status">That’s the signup preview. No email was stored or sent. We’ll connect a real waitlist before launch.</div>':'<form class="form" id="waitlist"><label for="email">Your email</label><input type="email" id="email" autocomplete="email" placeholder="you@example.com" required><label class="consent"><input type="checkbox" required> I’d like an email when the full Fintale product launches.</label><button class="primary" type="submit">Preview signup <span aria-hidden="true">→</span></button><p class="notice">Demo only. This form does not store or send your email. A live signup and privacy notice will be added before launch.</p></form>';
-    const feedbackUrl=createFeedbackUrl(feedbackAnswers.liked,feedbackAnswers.improve,feedbackAnswers.next);
+    const feedbackUrl=createFeedbackUrl(feedbackAnswers.liked,feedbackAnswers.improve,feedbackAnswers.next,feedbackAnswers.accounting);
     const feedbackSend=feedbackUrl && feedbackUrl.length<=7000?'<div class="feedback-send-option"><a href="'+feedbackUrl+'" target="_blank" rel="noopener noreferrer">Send my feedback on GitHub ↗</a><p class="notice">Feedback needs a GitHub account and is public. Open the draft and submit it there to send it. Email signup is separate.</p></div>':'';
     return waitlist+'<button class="text-button survey-skip" data-action="email-skip">Not now · Finish demo</button>'+feedbackSend;
   }
@@ -183,7 +184,7 @@
   }
   function render() {
     const v = view();
-    const markup = `<header class="topbar"><div class="brand"><span class="brand-mark" aria-hidden="true">f</span>fintale<span style="color:#7b936c">.</span></div><div class="top-actions"><span class="top-note">A little learning. A lot of possibility.</span><span class="xp" aria-label="${xp()} experience points">✦ &nbsp; ${xp()} XP</span><button class="icon-button" data-action="restart" aria-label="Restart lesson">↺</button></div></header><main class="shell"><div class="breadcrumb"><span>ACCOUNTING FOUNDATIONS</span><span>${memory.step === 15 ? (signup ? 'DEMO COMPLETE' : 'CHAPTER 02 · YOUR FIRST CUSTOMER') : 'CHAPTER 01 · THE ACCOUNTING EQUATION'}</span></div><div class="mobile-step"><span>${memory.step === 15 ? (signup ? (feedbackStep < 3 ? 'Help improve Fintale' : feedbackStep === 3 ? 'Launch updates' : 'Demo complete') : 'Your next chapter') : 'Your first day'}</span><span>${memory.step === 15 ? (signup ? (feedbackStep < 3 ? `${feedbackStep+1} / 3` : 'Optional') : 'Preview') : `${Math.min(memory.step+1,15)} / 15`}</span></div><div class="progress" aria-label="Lesson progress: step ${Math.min(memory.step+1,15)} of 15">${Array.from({length:15},(_,i)=>`<i class="${i <= memory.step ? 'done' : ''}"></i>`).join('')}</div><div class="lesson"><section class="lesson-copy"><div class="eyebrow">${v.eyebrow}</div><h1 tabindex="-1">${v.title}</h1><p class="lead">${v.text}</p><div class="lesson-response">${v.content || ''}${v.cta ? `<div class="lesson-actions">${v.cta}</div>` : ''}${v.foot ? `<p class="under-button">${v.foot}</p>` : ''}</div></section><section class="stage" data-placement-active="${Boolean(selected||activeCard)}" aria-label="Interactive lesson scene"><div class="stage-label"><span class="dot"></span>${v.label}</div>${v.visual}</section></div><aside class="guide-bar"><div class="avatar" aria-hidden="true">👨🏻‍🔧</div><p><b>LEO</b>${v.guide}</p><button class="text-button" data-action="guide">${memory.step === 0 ? 'Meet your guide' : 'Why? Ask Leo'}</button></aside><footer class="bottom"><button data-action="back" ${memory.step === 0 ? 'disabled' : ''}>← Back</button><span>${storageAvailable ? 'Progress saved on this device' : 'Progress kept for this session'}</span></footer></main>${interactionCoachHtml()}`;
+    const markup = `<header class="topbar"><div class="brand"><span class="brand-mark" aria-hidden="true">f</span>fintale<span style="color:#7b936c">.</span></div><div class="top-actions"><span class="top-note">A little learning. A lot of possibility.</span><span class="xp" aria-label="${xp()} experience points">✦ &nbsp; ${xp()} XP</span><button class="icon-button" data-action="restart" aria-label="Restart lesson">↺</button></div></header><main class="shell"><div class="breadcrumb"><span>ACCOUNTING FOUNDATIONS</span><span>${memory.step === 15 ? (signup ? 'DEMO COMPLETE' : 'CHAPTER 02 · YOUR FIRST CUSTOMER') : 'CHAPTER 01 · THE ACCOUNTING EQUATION'}</span></div><div class="mobile-step"><span>${memory.step === 15 ? (signup ? (feedbackStep < feedbackQuestions.length ? 'Help improve Fintale' : feedbackStep === feedbackQuestions.length ? 'Launch updates' : 'Demo complete') : 'Your next chapter') : 'Your first day'}</span><span>${memory.step === 15 ? (signup ? (feedbackStep < feedbackQuestions.length ? `${feedbackStep+1} / ${feedbackQuestions.length}` : 'Optional') : 'Preview') : `${Math.min(memory.step+1,15)} / 15`}</span></div><div class="progress" aria-label="Lesson progress: step ${Math.min(memory.step+1,15)} of 15">${Array.from({length:15},(_,i)=>`<i class="${i <= memory.step ? 'done' : ''}"></i>`).join('')}</div><div class="lesson"><section class="lesson-copy"><div class="eyebrow">${v.eyebrow}</div><h1 tabindex="-1">${v.title}</h1><p class="lead">${v.text}</p><div class="lesson-response">${v.content || ''}${v.cta ? `<div class="lesson-actions">${v.cta}</div>` : ''}${v.foot ? `<p class="under-button">${v.foot}</p>` : ''}</div></section><section class="stage" data-placement-active="${Boolean(selected||activeCard)}" aria-label="Interactive lesson scene"><div class="stage-label"><span class="dot"></span>${v.label}</div>${v.visual}</section></div><aside class="guide-bar"><div class="avatar" aria-hidden="true">👨🏻‍🔧</div><p><b>LEO</b>${v.guide}</p><button class="text-button" data-action="guide">${memory.step === 0 ? 'Meet your guide' : 'Why? Ask Leo'}</button></aside><footer class="bottom"><button data-action="back" ${memory.step === 0 ? 'disabled' : ''}>← Back</button><span>${storageAvailable ? 'Progress saved on this device' : 'Progress kept for this session'}</span></footer></main>${interactionCoachHtml()}`;
     patchMarkup(root, markup);
     bindWorkshopImage();
     bindTransfer();
@@ -196,7 +197,7 @@
     const form = document.querySelector('#waitlist');
     if (form) form.onsubmit=e=>{e.preventDefault();previewSubmitted=true;render();};
     const answer=document.querySelector('#feedback-answer');
-    if(answer && signup && feedbackStep<3) {
+    if(answer && signup && feedbackStep<feedbackQuestions.length) {
       answer.value=feedbackAnswers[feedbackQuestions[feedbackStep].key];
       answer.oninput=()=>{feedbackAnswers[feedbackQuestions[feedbackStep].key]=answer.value;};
     }
@@ -223,8 +224,8 @@
     if(action==='retry-art'){workshopRetry++;workshopStatus='loading';render();return;}
     if(action==='survey-next'){moveFeedback(feedbackStep+1);return;}
     if(action==='survey-back'){moveFeedback(feedbackStep-1);return;}
-    if(action==='survey-skip'||action==='survey-email'){moveFeedback(3);return;}
-    if(action==='email-skip'){moveFeedback(4);return;}
+    if(action==='survey-skip'||action==='survey-email'){moveFeedback(feedbackQuestions.length);return;}
+    if(action==='email-skip'){moveFeedback(feedbackQuestions.length+1);return;}
     if(action==='return-takeaway'){signup=false;memory.step=14;save();render();document.querySelector('h1').focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});return;}
     if(action==='back'&&memory.step===15&&signup){if(feedbackStep>0)moveFeedback(feedbackStep-1);else{signup=false;render();}return;}
 
@@ -242,7 +243,7 @@
     if (action==='complete' && memory.step===13 && memory.practice && memory.equation) { const firstCompletion=!memory.completed; memory.completed=true; advance(); if(firstCompletion){document.querySelector('#unlock-xp').textContent=`${xp()} XP · Milestone reached`;document.querySelector('#chapter-unlock').showModal();} }
     if (action==='guide') { document.querySelector('#guide-copy').textContent=tips[memory.step]; document.querySelector('#guide').showModal(); }
     if (action==='restart') document.querySelector('#restart').showModal();
-    if (action==='signup') { signup=true; feedbackStep=0; render(); document.querySelector('h1').focus({preventScroll:true}); window.scrollTo({top:0,behavior:'instant'}); }
+    if (action==='signup'||action==='launch-updates') { signup=true; feedbackStep=action==='launch-updates'?feedbackQuestions.length:0; render(); document.querySelector('h1').focus({preventScroll:true}); window.scrollTo({top:0,behavior:'instant'}); }
   });
   document.querySelectorAll('#guide .close, #guide .close-guide').forEach(b=>b.addEventListener('click',()=>document.querySelector('#guide').close()));
   document.querySelector('#restart .cancel').addEventListener('click',()=>document.querySelector('#restart').close());
