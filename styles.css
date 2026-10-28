@@ -180,3 +180,5 @@
 
 .signup-honeypot { display: none !important; }
 .form .notice a { color: #286247; text-underline-offset: 3px; }
+
+.chapter-development + .lesson-actions { margin-top: 24px; }
