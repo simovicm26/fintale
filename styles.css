@@ -158,3 +158,19 @@
 @media(prefers-reduced-motion:reduce) { .art-spinner { animation: none; }.workshop-visual .workshop-art { transition: none; } }
 
 .chapter-development { margin: 24px 0 0; padding: 20px 22px; border: 1px solid #d7dece; border-radius: 16px; background: #ecefe4; color: #586b5e; font-size: 14px; line-height: 1.65; }.chapter-development strong { color: #2b5e49; }.chapter-development p { margin: 10px 0 0; }
+
+/* Let the optional survey use the full phone width instead of nested panels. */
+@media (max-width:800px) {
+  .lesson > .stage:has(.survey-card) { padding: 0; border: 0; background: transparent; min-height: 0; overflow: visible; margin-bottom: 24px; }
+  .stage:has(.survey-card) > .stage-label { display: none; }
+  .stage .survey-card { max-width: none; margin: 0; padding: 22px 20px; border-radius: 16px; }
+  .survey-step { font-size: 11px; letter-spacing: .6px; gap: 12px; }
+  .survey-dots { margin: 16px 0 24px; }
+  .survey-card label { font-size: 17px; line-height: 1.55; margin-bottom: 18px; }
+  .survey-card textarea { font-size: 16px; line-height: 1.65; padding: 14px; min-height: 184px; max-height: none; }
+  .survey-card .notice { font-size: 12px; line-height: 1.65; margin-top: 18px; }
+  .survey-navigation { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 0; }
+  .survey-navigation:has(.secondary) { grid-template-columns: minmax(76px,auto) minmax(0,1fr); }
+  .survey-navigation > button { width: 100%; min-height: 52px; padding: 14px 16px; gap: 10px; }
+  .lesson-response > .survey-skip { width: 100%; min-height: 48px; margin-top: 20px; font-size: 13px; line-height: 1.6; }
+}
